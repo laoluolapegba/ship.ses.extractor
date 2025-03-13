@@ -53,7 +53,7 @@ ship.ses.extractor/
 
 ### **Clone the Repository**
 ```sh
-git clone https://github.com/your-org/ship.ses.extractor.git
+git clone https://github.com/laoluolapegba/ship.ses.extractor.git
 cd ship.ses.extractor
 ```
 
