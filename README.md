@@ -46,7 +46,7 @@ ship.ses.extractor/
 
 ## Installation
 ### **Prerequisites**
-- **.NET 7.0+**
+- **.NET 8.0+**
 - **Docker** (for containerized deployments)
 - **SQL Server / PostgreSQL** (for database extraction)
 - **RabbitMQ / Kafka** (for event-driven extraction)
@@ -109,8 +109,7 @@ Example `appsettings.json`:
     }
   },
   "Database": {
-    "Provider": "PostgreSQL",
-    "ConnectionString": "Host=localhost;Database=ses_db;Username=ses_user;Password=your_password"
+    
   },
   "ApiSettings": {
     "FhirBaseUrl": "https://fhir.emr.local",
@@ -124,25 +123,22 @@ Example `appsettings.json`:
 ## API Endpoints
 | **Method** | **Endpoint** | **Description** |
 |-----------|-------------|-----------------|
-| `POST` | `/extract/fhir` | Extract patient data from FHIR API |
-| `POST` | `/extract/custom` | Extract from non-FHIR EMRs |
-| `POST` | `/extract/database` | Extract from SQL databases |
-| `POST` | `/extract/file` | Extract from XML/JSON files |
+| `POST` | `/extract/fhir/patient` | Extract patient data from FHIR API |
+
 
 ---
 
 ## Authentication
-All API requests require **OAuth2 Bearer Tokens**.
 
 ### **Example Authorization Header**
 ```http
-Authorization: Bearer <ACCESS_TOKEN>
+
 ```
 
 ---
 
 ## Logging & Monitoring
-SHIP Mini logs events using **Serilog**, and all logs are forwarded to **ELK Stack (Elasticsearch, Logstash, Kibana)**.
+SHIP Ses logs events using **Serilog**, and all logs are forwarded to **ELK Stack (Elasticsearch, Logstash, Kibana)**.
 
 ### **Log Example**
 ```json
@@ -179,20 +175,20 @@ helm upgrade --install ses-extractor charts/ses-extractor
 
 **Azure Deployment (Using ACR & AKS)**
 ```sh
-az acr build --image ses-extractor:v1.0 --registry mycontainerregistry .
-az aks deploy --name ses-extractor --image mycontainerregistry/ses-extractor:v1.0
+az acr build --image ses-extractor:v1.0 --registry shipcontainerregistry .
+az aks deploy --name ses-extractor --image shipcontainerregistry/ses-extractor:v1.0
 ```
 
 ---
 
 ## License
-📜 **MIT License** – Open-source for community and enterprise use.
+📜 *
 
 ---
 
 ## Contacts & Support
-- 📧 **Support**: support@ses.io
-- 🚀 **Contributors**: @yourteam  
+- 📧 **Support**: support@
+- 🚀 **Contributors**: @ses  
 - 📚 **Docs**: [Confluence Page](https://confluence.ses.io/docs)
 
 ---
