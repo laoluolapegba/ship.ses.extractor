@@ -1,0 +1,3 @@
+﻿<Project>
+  <Import Project="..\buildMultiTargeting\Ship.Ses.Extractor.WebApi.props" />
+</Project>
