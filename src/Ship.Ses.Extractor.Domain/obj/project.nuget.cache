@@ -1,8 +1,12 @@
 {
   "version": 2,
-  "dgSpecHash": "p4TJYKel6eg=",
+  "dgSpecHash": "hBaK0PIr0wc=",
   "success": true,
   "projectFilePath": "C:\\LaoluOlapegba\\source\\repos\\SeS\\Ship.Ses.Extractor\\src\\Ship.Ses.Extractor.Domain\\Ship.Ses.Extractor.Domain.csproj",
-  "expectedPackageFiles": [],
+  "expectedPackageFiles": [
+    "C:\\Users\\laolu\\.nuget\\packages\\mongodb.bson\\3.3.0\\mongodb.bson.3.3.0.nupkg.sha512",
+    "C:\\Users\\laolu\\.nuget\\packages\\system.memory\\4.5.5\\system.memory.4.5.5.nupkg.sha512",
+    "C:\\Users\\laolu\\.nuget\\packages\\system.runtime.compilerservices.unsafe\\5.0.0\\system.runtime.compilerservices.unsafe.5.0.0.nupkg.sha512"
+  ],
   "logs": []
 }

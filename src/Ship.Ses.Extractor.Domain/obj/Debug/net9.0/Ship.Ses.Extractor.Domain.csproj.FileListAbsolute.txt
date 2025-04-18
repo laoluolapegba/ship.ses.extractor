@@ -5,7 +5,9 @@ C:\LaoluOlapegba\source\repos\SeS\Ship.Ses.Extractor\src\Ship.Ses.Extractor.Doma
 C:\LaoluOlapegba\source\repos\SeS\Ship.Ses.Extractor\src\Ship.Ses.Extractor.Domain\obj\Debug\net9.0\Ship.Ses.Extractor.Domain.AssemblyInfoInputs.cache
 C:\LaoluOlapegba\source\repos\SeS\Ship.Ses.Extractor\src\Ship.Ses.Extractor.Domain\obj\Debug\net9.0\Ship.Ses.Extractor.Domain.AssemblyInfo.cs
 C:\LaoluOlapegba\source\repos\SeS\Ship.Ses.Extractor\src\Ship.Ses.Extractor.Domain\obj\Debug\net9.0\Ship.Ses.Extractor.Domain.csproj.CoreCompileInputs.cache
+C:\LaoluOlapegba\source\repos\SeS\Ship.Ses.Extractor\src\Ship.Ses.Extractor.Domain\obj\Debug\net9.0\Ship.Ses.Extractor.Domain.sourcelink.json
 C:\LaoluOlapegba\source\repos\SeS\Ship.Ses.Extractor\src\Ship.Ses.Extractor.Domain\obj\Debug\net9.0\Ship.Ses.Extractor.Domain.dll
 C:\LaoluOlapegba\source\repos\SeS\Ship.Ses.Extractor\src\Ship.Ses.Extractor.Domain\obj\Debug\net9.0\refint\Ship.Ses.Extractor.Domain.dll
 C:\LaoluOlapegba\source\repos\SeS\Ship.Ses.Extractor\src\Ship.Ses.Extractor.Domain\obj\Debug\net9.0\Ship.Ses.Extractor.Domain.pdb
 C:\LaoluOlapegba\source\repos\SeS\Ship.Ses.Extractor\src\Ship.Ses.Extractor.Domain\obj\Debug\net9.0\ref\Ship.Ses.Extractor.Domain.dll
+C:\LaoluOlapegba\source\repos\SeS\Ship.Ses.Extractor\src\Ship.Ses.Extractor.Domain\obj\Debug\net9.0\Ship.Ses.Extractor.Domain.csproj.AssemblyReference.cache

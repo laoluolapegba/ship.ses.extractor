@@ -1,4 +1,3 @@
-C:\LaoluOlapegba\source\repos\SeS\Ship.Ses.Extractor\src\Ship.Ses.Extractor.WebApi\bin\Debug\net9.0\EmailTemplates\WelcomeEmail.html
 C:\LaoluOlapegba\source\repos\SeS\Ship.Ses.Extractor\src\Ship.Ses.Extractor.WebApi\bin\Debug\net9.0\appsettings.Development.json
 C:\LaoluOlapegba\source\repos\SeS\Ship.Ses.Extractor\src\Ship.Ses.Extractor.WebApi\bin\Debug\net9.0\appsettings.json
 C:\LaoluOlapegba\source\repos\SeS\Ship.Ses.Extractor\src\Ship.Ses.Extractor.WebApi\bin\Debug\net9.0\Ship.Ses.Extractor.WebApi.staticwebassets.endpoints.json
@@ -35,8 +34,17 @@ C:\LaoluOlapegba\source\repos\SeS\Ship.Ses.Extractor\src\Ship.Ses.Extractor.WebA
 C:\LaoluOlapegba\source\repos\SeS\Ship.Ses.Extractor\src\Ship.Ses.Extractor.WebApi\bin\Debug\net9.0\Microsoft.EntityFrameworkCore.Abstractions.dll
 C:\LaoluOlapegba\source\repos\SeS\Ship.Ses.Extractor\src\Ship.Ses.Extractor.WebApi\bin\Debug\net9.0\Microsoft.EntityFrameworkCore.Design.dll
 C:\LaoluOlapegba\source\repos\SeS\Ship.Ses.Extractor\src\Ship.Ses.Extractor.WebApi\bin\Debug\net9.0\Microsoft.EntityFrameworkCore.Relational.dll
+C:\LaoluOlapegba\source\repos\SeS\Ship.Ses.Extractor\src\Ship.Ses.Extractor.WebApi\bin\Debug\net9.0\Microsoft.Extensions.Caching.Abstractions.dll
+C:\LaoluOlapegba\source\repos\SeS\Ship.Ses.Extractor\src\Ship.Ses.Extractor.WebApi\bin\Debug\net9.0\Microsoft.Extensions.Caching.Memory.dll
 C:\LaoluOlapegba\source\repos\SeS\Ship.Ses.Extractor\src\Ship.Ses.Extractor.WebApi\bin\Debug\net9.0\Microsoft.Extensions.Caching.StackExchangeRedis.dll
+C:\LaoluOlapegba\source\repos\SeS\Ship.Ses.Extractor\src\Ship.Ses.Extractor.WebApi\bin\Debug\net9.0\Microsoft.Extensions.Configuration.Abstractions.dll
+C:\LaoluOlapegba\source\repos\SeS\Ship.Ses.Extractor\src\Ship.Ses.Extractor.WebApi\bin\Debug\net9.0\Microsoft.Extensions.DependencyInjection.dll
+C:\LaoluOlapegba\source\repos\SeS\Ship.Ses.Extractor\src\Ship.Ses.Extractor.WebApi\bin\Debug\net9.0\Microsoft.Extensions.DependencyInjection.Abstractions.dll
 C:\LaoluOlapegba\source\repos\SeS\Ship.Ses.Extractor\src\Ship.Ses.Extractor.WebApi\bin\Debug\net9.0\Microsoft.Extensions.DependencyModel.dll
+C:\LaoluOlapegba\source\repos\SeS\Ship.Ses.Extractor\src\Ship.Ses.Extractor.WebApi\bin\Debug\net9.0\Microsoft.Extensions.Logging.dll
+C:\LaoluOlapegba\source\repos\SeS\Ship.Ses.Extractor\src\Ship.Ses.Extractor.WebApi\bin\Debug\net9.0\Microsoft.Extensions.Logging.Abstractions.dll
+C:\LaoluOlapegba\source\repos\SeS\Ship.Ses.Extractor\src\Ship.Ses.Extractor.WebApi\bin\Debug\net9.0\Microsoft.Extensions.Options.dll
+C:\LaoluOlapegba\source\repos\SeS\Ship.Ses.Extractor\src\Ship.Ses.Extractor.WebApi\bin\Debug\net9.0\Microsoft.Extensions.Primitives.dll
 C:\LaoluOlapegba\source\repos\SeS\Ship.Ses.Extractor\src\Ship.Ses.Extractor.WebApi\bin\Debug\net9.0\Microsoft.IdentityModel.Abstractions.dll
 C:\LaoluOlapegba\source\repos\SeS\Ship.Ses.Extractor\src\Ship.Ses.Extractor.WebApi\bin\Debug\net9.0\Microsoft.IdentityModel.JsonWebTokens.dll
 C:\LaoluOlapegba\source\repos\SeS\Ship.Ses.Extractor\src\Ship.Ses.Extractor.WebApi\bin\Debug\net9.0\Microsoft.IdentityModel.Logging.dll
@@ -151,6 +159,7 @@ C:\LaoluOlapegba\source\repos\SeS\Ship.Ses.Extractor\src\Ship.Ses.Extractor.WebA
 C:\LaoluOlapegba\source\repos\SeS\Ship.Ses.Extractor\src\Ship.Ses.Extractor.WebApi\obj\Debug\net9.0\Ship.Ses.Extractor.WebApi.csproj.CoreCompileInputs.cache
 C:\LaoluOlapegba\source\repos\SeS\Ship.Ses.Extractor\src\Ship.Ses.Extractor.WebApi\obj\Debug\net9.0\Ship.Ses.Extractor.WebApi.MvcApplicationPartsAssemblyInfo.cs
 C:\LaoluOlapegba\source\repos\SeS\Ship.Ses.Extractor\src\Ship.Ses.Extractor.WebApi\obj\Debug\net9.0\Ship.Ses.Extractor.WebApi.MvcApplicationPartsAssemblyInfo.cache
+C:\LaoluOlapegba\source\repos\SeS\Ship.Ses.Extractor\src\Ship.Ses.Extractor.WebApi\obj\Debug\net9.0\Ship.Ses.Extractor.WebApi.sourcelink.json
 C:\LaoluOlapegba\source\repos\SeS\Ship.Ses.Extractor\src\Ship.Ses.Extractor.WebApi\obj\Debug\net9.0\scopedcss\bundle\Ship.Ses.Extractor.WebApi.styles.css
 C:\LaoluOlapegba\source\repos\SeS\Ship.Ses.Extractor\src\Ship.Ses.Extractor.WebApi\obj\Debug\net9.0\staticwebassets.build.json
 C:\LaoluOlapegba\source\repos\SeS\Ship.Ses.Extractor\src\Ship.Ses.Extractor.WebApi\obj\Debug\net9.0\staticwebassets.development.json
@@ -168,3 +177,9 @@ C:\LaoluOlapegba\source\repos\SeS\Ship.Ses.Extractor\src\Ship.Ses.Extractor.WebA
 C:\LaoluOlapegba\source\repos\SeS\Ship.Ses.Extractor\src\Ship.Ses.Extractor.WebApi\obj\Debug\net9.0\Ship.Ses.Extractor.WebApi.pdb
 C:\LaoluOlapegba\source\repos\SeS\Ship.Ses.Extractor\src\Ship.Ses.Extractor.WebApi\obj\Debug\net9.0\Ship.Ses.Extractor.WebApi.genruntimeconfig.cache
 C:\LaoluOlapegba\source\repos\SeS\Ship.Ses.Extractor\src\Ship.Ses.Extractor.WebApi\obj\Debug\net9.0\ref\Ship.Ses.Extractor.WebApi.dll
+C:\LaoluOlapegba\source\repos\SeS\Ship.Ses.Extractor\src\Ship.Ses.Extractor.WebApi\bin\Debug\net9.0\DnsClient.dll
+C:\LaoluOlapegba\source\repos\SeS\Ship.Ses.Extractor\src\Ship.Ses.Extractor.WebApi\bin\Debug\net9.0\MongoDB.Bson.dll
+C:\LaoluOlapegba\source\repos\SeS\Ship.Ses.Extractor\src\Ship.Ses.Extractor.WebApi\bin\Debug\net9.0\MongoDB.Driver.dll
+C:\LaoluOlapegba\source\repos\SeS\Ship.Ses.Extractor\src\Ship.Ses.Extractor.WebApi\bin\Debug\net9.0\SharpCompress.dll
+C:\LaoluOlapegba\source\repos\SeS\Ship.Ses.Extractor\src\Ship.Ses.Extractor.WebApi\bin\Debug\net9.0\Snappier.dll
+C:\LaoluOlapegba\source\repos\SeS\Ship.Ses.Extractor\src\Ship.Ses.Extractor.WebApi\bin\Debug\net9.0\ZstdSharp.dll

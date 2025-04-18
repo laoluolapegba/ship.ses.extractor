@@ -8,6 +8,7 @@ C:\LaoluOlapegba\source\repos\SeS\Ship.Ses.Extractor\src\Ship.Ses.Extractor.Appl
 C:\LaoluOlapegba\source\repos\SeS\Ship.Ses.Extractor\src\Ship.Ses.Extractor.Application\obj\Debug\net9.0\Ship.Ses.Extractor.Application.AssemblyInfoInputs.cache
 C:\LaoluOlapegba\source\repos\SeS\Ship.Ses.Extractor\src\Ship.Ses.Extractor.Application\obj\Debug\net9.0\Ship.Ses.Extractor.Application.AssemblyInfo.cs
 C:\LaoluOlapegba\source\repos\SeS\Ship.Ses.Extractor\src\Ship.Ses.Extractor.Application\obj\Debug\net9.0\Ship.Ses.Extractor.Application.csproj.CoreCompileInputs.cache
+C:\LaoluOlapegba\source\repos\SeS\Ship.Ses.Extractor\src\Ship.Ses.Extractor.Application\obj\Debug\net9.0\Ship.Ses.Extractor.Application.sourcelink.json
 C:\LaoluOlapegba\source\repos\SeS\Ship.Ses.Extractor\src\Ship.Ses.Extractor.Application\obj\Debug\net9.0\Ship.Ses.634E3A13.Up2Date
 C:\LaoluOlapegba\source\repos\SeS\Ship.Ses.Extractor\src\Ship.Ses.Extractor.Application\obj\Debug\net9.0\Ship.Ses.Extractor.Application.dll
 C:\LaoluOlapegba\source\repos\SeS\Ship.Ses.Extractor\src\Ship.Ses.Extractor.Application\obj\Debug\net9.0\refint\Ship.Ses.Extractor.Application.dll

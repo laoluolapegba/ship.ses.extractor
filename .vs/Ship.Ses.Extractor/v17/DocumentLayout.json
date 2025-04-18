@@ -1,12 +1,122 @@
 {
   "Version": 1,
   "WorkspaceRootPath": "C:\\LaoluOlapegba\\source\\repos\\SeS\\Ship.Ses.Extractor\\",
-  "Documents": [],
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{C502FAD4-D7EE-41D8-A377-A2EA445BF08A}|src\\Ship.Ses.Extractor.Application\\Ship.Ses.Extractor.Application.csproj|c:\\laoluolapegba\\source\\repos\\ses\\ship.ses.extractor\\src\\ship.ses.extractor.application\\services\\extractors\\patientresourceextractor.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{C502FAD4-D7EE-41D8-A377-A2EA445BF08A}|src\\Ship.Ses.Extractor.Application\\Ship.Ses.Extractor.Application.csproj|solutionrelative:src\\ship.ses.extractor.application\\services\\extractors\\patientresourceextractor.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{C502FAD4-D7EE-41D8-A377-A2EA445BF08A}|src\\Ship.Ses.Extractor.Application\\Ship.Ses.Extractor.Application.csproj|c:\\laoluolapegba\\source\\repos\\ses\\ship.ses.extractor\\src\\ship.ses.extractor.application\\services\\transformers\\patienttransformer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{C502FAD4-D7EE-41D8-A377-A2EA445BF08A}|src\\Ship.Ses.Extractor.Application\\Ship.Ses.Extractor.Application.csproj|solutionrelative:src\\ship.ses.extractor.application\\services\\transformers\\patienttransformer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{C10ECEB1-D72B-4EB6-B61A-DDC5FA6A1EAA}|src\\Ship.Ses.Extractor.Infrastructure\\Ship.Ses.Extractor.Infrastructure.csproj|c:\\laoluolapegba\\source\\repos\\ses\\ship.ses.extractor\\src\\ship.ses.extractor.infrastructure\\persistance\\repositories\\mongofhirsyncrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{C10ECEB1-D72B-4EB6-B61A-DDC5FA6A1EAA}|src\\Ship.Ses.Extractor.Infrastructure\\Ship.Ses.Extractor.Infrastructure.csproj|solutionrelative:src\\ship.ses.extractor.infrastructure\\persistance\\repositories\\mongofhirsyncrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{1634BC82-64BA-4390-ABFC-D11D63C07F3A}|src\\Ship.Ses.Extractor.Service\\Ship.Ses.Extractor.Worker\\Ship.Ses.Extractor.Worker.csproj|c:\\laoluolapegba\\source\\repos\\ses\\ship.ses.extractor\\src\\ship.ses.extractor.service\\ship.ses.extractor.worker\\patientsyncworker.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{1634BC82-64BA-4390-ABFC-D11D63C07F3A}|src\\Ship.Ses.Extractor.Service\\Ship.Ses.Extractor.Worker\\Ship.Ses.Extractor.Worker.csproj|solutionrelative:src\\ship.ses.extractor.service\\ship.ses.extractor.worker\\patientsyncworker.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{1634BC82-64BA-4390-ABFC-D11D63C07F3A}|src\\Ship.Ses.Extractor.Service\\Ship.Ses.Extractor.Worker\\Ship.Ses.Extractor.Worker.csproj|c:\\laoluolapegba\\source\\repos\\ses\\ship.ses.extractor\\src\\ship.ses.extractor.service\\ship.ses.extractor.worker\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
+      "RelativeMoniker": "D:0:0:{1634BC82-64BA-4390-ABFC-D11D63C07F3A}|src\\Ship.Ses.Extractor.Service\\Ship.Ses.Extractor.Worker\\Ship.Ses.Extractor.Worker.csproj|solutionrelative:src\\ship.ses.extractor.service\\ship.ses.extractor.worker\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{1634BC82-64BA-4390-ABFC-D11D63C07F3A}|src\\Ship.Ses.Extractor.Service\\Ship.Ses.Extractor.Worker\\Ship.Ses.Extractor.Worker.csproj|c:\\laoluolapegba\\source\\repos\\ses\\ship.ses.extractor\\src\\ship.ses.extractor.service\\ship.ses.extractor.worker\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{1634BC82-64BA-4390-ABFC-D11D63C07F3A}|src\\Ship.Ses.Extractor.Service\\Ship.Ses.Extractor.Worker\\Ship.Ses.Extractor.Worker.csproj|solutionrelative:src\\ship.ses.extractor.service\\ship.ses.extractor.worker\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    }
+  ],
   "DocumentGroupContainers": [
     {
       "Orientation": 0,
       "VerticalTabListWidth": 256,
-      "DocumentGroups": []
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 0,
+          "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "PatientResourceExtractor.cs",
+              "DocumentMoniker": "C:\\LaoluOlapegba\\source\\repos\\SeS\\Ship.Ses.Extractor\\src\\Ship.Ses.Extractor.Application\\Services\\Extractors\\PatientResourceExtractor.cs",
+              "RelativeDocumentMoniker": "src\\Ship.Ses.Extractor.Application\\Services\\Extractors\\PatientResourceExtractor.cs",
+              "ToolTip": "C:\\LaoluOlapegba\\source\\repos\\SeS\\Ship.Ses.Extractor\\src\\Ship.Ses.Extractor.Application\\Services\\Extractors\\PatientResourceExtractor.cs",
+              "RelativeToolTip": "src\\Ship.Ses.Extractor.Application\\Services\\Extractors\\PatientResourceExtractor.cs",
+              "ViewState": "AgIAABwAAAAAAAAAAAAgwCYAAAAwAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-04-18T19:34:25.019Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "PatientTransformer.cs",
+              "DocumentMoniker": "C:\\LaoluOlapegba\\source\\repos\\SeS\\Ship.Ses.Extractor\\src\\Ship.Ses.Extractor.Application\\Services\\Transformers\\PatientTransformer.cs",
+              "RelativeDocumentMoniker": "src\\Ship.Ses.Extractor.Application\\Services\\Transformers\\PatientTransformer.cs",
+              "ToolTip": "C:\\LaoluOlapegba\\source\\repos\\SeS\\Ship.Ses.Extractor\\src\\Ship.Ses.Extractor.Application\\Services\\Transformers\\PatientTransformer.cs",
+              "RelativeToolTip": "src\\Ship.Ses.Extractor.Application\\Services\\Transformers\\PatientTransformer.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-04-18T19:34:14.167Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "MongoFhirSyncRepository.cs",
+              "DocumentMoniker": "C:\\LaoluOlapegba\\source\\repos\\SeS\\Ship.Ses.Extractor\\src\\Ship.Ses.Extractor.Infrastructure\\Persistance\\Repositories\\MongoFhirSyncRepository.cs",
+              "RelativeDocumentMoniker": "src\\Ship.Ses.Extractor.Infrastructure\\Persistance\\Repositories\\MongoFhirSyncRepository.cs",
+              "ToolTip": "C:\\LaoluOlapegba\\source\\repos\\SeS\\Ship.Ses.Extractor\\src\\Ship.Ses.Extractor.Infrastructure\\Persistance\\Repositories\\MongoFhirSyncRepository.cs",
+              "RelativeToolTip": "src\\Ship.Ses.Extractor.Infrastructure\\Persistance\\Repositories\\MongoFhirSyncRepository.cs",
+              "ViewState": "AgIAAAYAAAAAAAAAAAAAABsAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-04-18T19:33:10.184Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "appsettings.json",
+              "DocumentMoniker": "C:\\LaoluOlapegba\\source\\repos\\SeS\\Ship.Ses.Extractor\\src\\Ship.Ses.Extractor.Service\\Ship.Ses.Extractor.Worker\\appsettings.json",
+              "RelativeDocumentMoniker": "src\\Ship.Ses.Extractor.Service\\Ship.Ses.Extractor.Worker\\appsettings.json",
+              "ToolTip": "C:\\LaoluOlapegba\\source\\repos\\SeS\\Ship.Ses.Extractor\\src\\Ship.Ses.Extractor.Service\\Ship.Ses.Extractor.Worker\\appsettings.json",
+              "RelativeToolTip": "src\\Ship.Ses.Extractor.Service\\Ship.Ses.Extractor.Worker\\appsettings.json",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAcAAAAlAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
+              "WhenOpened": "2025-04-18T09:12:59.098Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "PatientSyncWorker.cs",
+              "DocumentMoniker": "C:\\LaoluOlapegba\\source\\repos\\SeS\\Ship.Ses.Extractor\\src\\Ship.Ses.Extractor.Service\\Ship.Ses.Extractor.Worker\\PatientSyncWorker.cs",
+              "RelativeDocumentMoniker": "src\\Ship.Ses.Extractor.Service\\Ship.Ses.Extractor.Worker\\PatientSyncWorker.cs",
+              "ToolTip": "C:\\LaoluOlapegba\\source\\repos\\SeS\\Ship.Ses.Extractor\\src\\Ship.Ses.Extractor.Service\\Ship.Ses.Extractor.Worker\\PatientSyncWorker.cs",
+              "RelativeToolTip": "src\\Ship.Ses.Extractor.Service\\Ship.Ses.Extractor.Worker\\PatientSyncWorker.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAACoAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-04-18T09:06:02.22Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "Program.cs",
+              "DocumentMoniker": "C:\\LaoluOlapegba\\source\\repos\\SeS\\Ship.Ses.Extractor\\src\\Ship.Ses.Extractor.Service\\Ship.Ses.Extractor.Worker\\Program.cs",
+              "RelativeDocumentMoniker": "src\\Ship.Ses.Extractor.Service\\Ship.Ses.Extractor.Worker\\Program.cs",
+              "ToolTip": "C:\\LaoluOlapegba\\source\\repos\\SeS\\Ship.Ses.Extractor\\src\\Ship.Ses.Extractor.Service\\Ship.Ses.Extractor.Worker\\Program.cs",
+              "RelativeToolTip": "src\\Ship.Ses.Extractor.Service\\Ship.Ses.Extractor.Worker\\Program.cs",
+              "ViewState": "AgIAAAoAAAAAAAAAAAAUwBgAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-04-17T22:02:59.277Z",
+              "EditorCaption": ""
+            }
+          ]
+        }
+      ]
     }
   ]
 }
