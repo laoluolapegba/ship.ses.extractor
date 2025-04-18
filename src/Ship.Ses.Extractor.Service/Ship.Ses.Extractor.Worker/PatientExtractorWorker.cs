@@ -14,12 +14,12 @@ namespace Ship.Ses.Extractor.Worker
     using System.Threading;
     using System.Threading.Tasks;
 
-    public class PatientSyncWorker : BackgroundService
+    public class PatientExtractorWorker : BackgroundService
     {
-        private readonly ILogger<PatientSyncWorker> _logger;
+        private readonly ILogger<PatientExtractorWorker> _logger;
         private readonly PatientResourceExtractor _extractor;
 
-        public PatientSyncWorker(ILogger<PatientSyncWorker> logger, PatientResourceExtractor extractor)
+        public PatientExtractorWorker(ILogger<PatientExtractorWorker> logger, PatientResourceExtractor extractor)
         {
             _logger = logger;
             _extractor = extractor;
@@ -27,17 +27,18 @@ namespace Ship.Ses.Extractor.Worker
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            _logger.LogInformation("Patient sync starting...");
-
+            _logger.LogInformation("🚀 Starting Patient Extractor Worker...");
             try
             {
                 await _extractor.ExtractAndPersistAsync(stoppingToken);
-                _logger.LogInformation("Patient sync completed.");
+                _logger.LogInformation("✅ Patient extraction completed:");
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "An error occurred during patient sync.");
+                _logger.LogError(ex, "❌ Unhandled exception in PatientExtractorWorker");
+                await Task.Delay(TimeSpan.FromSeconds(10), stoppingToken);
             }
+            
         }
     }
 

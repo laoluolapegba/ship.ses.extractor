@@ -10,6 +10,8 @@
     <PackageReference Include="MassTransit" Version="8.2.3" />
     <PackageReference Include="FluentValidation" Version="11.10.0" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+    <PackageReference Include="Serilog.Enrichers.CorrelationId" Version="3.0.1" />
+    <PackageReference Include="Serilog.Enrichers.Environment" Version="3.0.1" />
   </ItemGroup>
 
   <ItemGroup>

@@ -102,3 +102,15 @@ C:\LaoluOlapegba\source\repos\SeS\Ship.Ses.Extractor\src\Ship.Ses.Extractor.Serv
 C:\LaoluOlapegba\source\repos\SeS\Ship.Ses.Extractor\src\Ship.Ses.Extractor.Service\Ship.Ses.Extractor.Worker\bin\Debug\net9.0\MongoDB.Driver.dll
 C:\LaoluOlapegba\source\repos\SeS\Ship.Ses.Extractor\src\Ship.Ses.Extractor.Service\Ship.Ses.Extractor.Worker\bin\Debug\net9.0\SharpCompress.dll
 C:\LaoluOlapegba\source\repos\SeS\Ship.Ses.Extractor\src\Ship.Ses.Extractor.Service\Ship.Ses.Extractor.Worker\bin\Debug\net9.0\Snappier.dll
+C:\LaoluOlapegba\source\repos\SeS\Ship.Ses.Extractor\src\Ship.Ses.Extractor.Service\Ship.Ses.Extractor.Worker\bin\Debug\net9.0\Microsoft.Extensions.DependencyModel.dll
+C:\LaoluOlapegba\source\repos\SeS\Ship.Ses.Extractor\src\Ship.Ses.Extractor.Service\Ship.Ses.Extractor.Worker\bin\Debug\net9.0\Serilog.dll
+C:\LaoluOlapegba\source\repos\SeS\Ship.Ses.Extractor\src\Ship.Ses.Extractor.Service\Ship.Ses.Extractor.Worker\bin\Debug\net9.0\Serilog.AspNetCore.dll
+C:\LaoluOlapegba\source\repos\SeS\Ship.Ses.Extractor\src\Ship.Ses.Extractor.Service\Ship.Ses.Extractor.Worker\bin\Debug\net9.0\Serilog.Enrichers.CorrelationId.dll
+C:\LaoluOlapegba\source\repos\SeS\Ship.Ses.Extractor\src\Ship.Ses.Extractor.Service\Ship.Ses.Extractor.Worker\bin\Debug\net9.0\Serilog.Enrichers.Environment.dll
+C:\LaoluOlapegba\source\repos\SeS\Ship.Ses.Extractor\src\Ship.Ses.Extractor.Service\Ship.Ses.Extractor.Worker\bin\Debug\net9.0\Serilog.Extensions.Hosting.dll
+C:\LaoluOlapegba\source\repos\SeS\Ship.Ses.Extractor\src\Ship.Ses.Extractor.Service\Ship.Ses.Extractor.Worker\bin\Debug\net9.0\Serilog.Extensions.Logging.dll
+C:\LaoluOlapegba\source\repos\SeS\Ship.Ses.Extractor\src\Ship.Ses.Extractor.Service\Ship.Ses.Extractor.Worker\bin\Debug\net9.0\Serilog.Formatting.Compact.dll
+C:\LaoluOlapegba\source\repos\SeS\Ship.Ses.Extractor\src\Ship.Ses.Extractor.Service\Ship.Ses.Extractor.Worker\bin\Debug\net9.0\Serilog.Settings.Configuration.dll
+C:\LaoluOlapegba\source\repos\SeS\Ship.Ses.Extractor\src\Ship.Ses.Extractor.Service\Ship.Ses.Extractor.Worker\bin\Debug\net9.0\Serilog.Sinks.Console.dll
+C:\LaoluOlapegba\source\repos\SeS\Ship.Ses.Extractor\src\Ship.Ses.Extractor.Service\Ship.Ses.Extractor.Worker\bin\Debug\net9.0\Serilog.Sinks.Debug.dll
+C:\LaoluOlapegba\source\repos\SeS\Ship.Ses.Extractor\src\Ship.Ses.Extractor.Service\Ship.Ses.Extractor.Worker\bin\Debug\net9.0\Serilog.Sinks.File.dll
