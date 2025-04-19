@@ -50,7 +50,7 @@ namespace Ship.Ses.Extractor.Application.Services.Extractors
         public async Task ExtractAndPersistAsync(CancellationToken cancellationToken = default)
         {
             var correlationId = Guid.NewGuid().ToString();
-            using (LogContext.PushProperty("CorrelationId", correlationId))
+            using (LogContext.PushProperty("CorrelationId", correlationId)) 
             {
                 _logger.LogInformation("Started extraction with CorrelationId {CorrelationId}", correlationId);
 
@@ -65,8 +65,8 @@ namespace Ship.Ses.Extractor.Application.Services.Extractors
                     try
                     {
                         // Extract source keys
-                        var sourceId = row["id"]?.ToString();
-                        var lastUpdated = row.TryGetValue("updated_at", out var u) ? DateTime.Parse(u?.ToString()!) : (DateTime?)null;
+                        var sourceId = row["patient_id"]?.ToString();
+                        var lastUpdated = row.TryGetValue("created_at", out var u) ? DateTime.Parse(u?.ToString()!) : (DateTime?)null;
                         var rowHash = ComputeRowHash(row);
 
                         if (string.IsNullOrWhiteSpace(sourceId))
@@ -125,7 +125,7 @@ namespace Ship.Ses.Extractor.Application.Services.Extractors
                     }
                     catch (Exception ex)
                     {
-                        var sourceId = row["id"]?.ToString() ?? "<unknown>";
+                        var sourceId = row["patient_id"]?.ToString() ?? "<unknown>";
                         _logger.LogError(ex, "Unhandled error processing record {SourceId}", sourceId);
 
                         await _syncTrackingRepository.AddOrUpdateAsync(new SyncTracking

@@ -22,7 +22,8 @@ namespace Ship.Ses.Extractor.Worker.Extensions
             // Application logic
             services.AddSingleton<IFhirValidator, PassThroughFhirValidator>();
             services.AddSingleton<IResourceTransformer<JsonObject>, PatientTransformer>();
-            services.AddSingleton<PatientResourceExtractor>();
+            // Orchestrator
+            services.AddScoped<PatientResourceExtractor>();
 
             return services;
         }

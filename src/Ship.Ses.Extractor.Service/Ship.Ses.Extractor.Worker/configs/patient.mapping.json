@@ -1,19 +1,19 @@
 {
     "resourceType": "Patient",
-    "tableName": "emr_patients",
+    "tableName": "patients",
     "fields": [
         {
-            "emrField": "id",
+            "emrField": "patient_id",
             "fhirPath": "id",
-            "dataType": "string"
+            "dataType": "int"
         },
         {
-            "emrField": "first_name",
+            "emrField": "forename",
             "fhirPath": "name[0].given[0]",
             "dataType": "string"
         },
         {
-            "emrField": "last_name",
+            "emrField": "surname",
             "fhirPath": "name[0].family",
             "dataType": "string"
         },
@@ -30,7 +30,7 @@
             "default": "unknown"
         },
         {
-            "emrField": "phone_number",
+            "emrField": "phone",
             "fhirPath": "telecom[0].value",
             "dataType": "string"
         },

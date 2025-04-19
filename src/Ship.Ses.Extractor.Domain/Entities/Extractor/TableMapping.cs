@@ -1,7 +1,9 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
 namespace Ship.Ses.Extractor.Domain.Models.Extractor
@@ -14,8 +16,11 @@ namespace Ship.Ses.Extractor.Domain.Models.Extractor
     //}
     public class TableMapping
     {
+        [JsonPropertyName("resourceType")]
         public string ResourceType { get; set; } = default!;
+        [JsonPropertyName("tableName")]
         public string TableName { get; set; } = default!;
+        [JsonPropertyName("fields")]
         public List<FieldMapping> Fields { get; set; } = new();
     }
 }
