@@ -3,10 +3,12 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using MongoDB.Driver;
 using Ship.Ses.Extractor.Application.Services;
+using Ship.Ses.Extractor.Application.Services.DataMapping;
 using Ship.Ses.Extractor.Application.Services.Extractors;
 using Ship.Ses.Extractor.Application.Services.Transformers;
 using Ship.Ses.Extractor.Application.Services.Validators;
 using Ship.Ses.Extractor.Domain.Entities.Patients;
+using Ship.Ses.Extractor.Domain.Repositories.DataMapping;
 using Ship.Ses.Extractor.Domain.Repositories.Extractor;
 using Ship.Ses.Extractor.Domain.Repositories.Transformer;
 using Ship.Ses.Extractor.Domain.Repositories.Validator;
@@ -14,6 +16,7 @@ using Ship.Ses.Extractor.Domain.Shared;
 using Ship.Ses.Extractor.Infrastructure.Configuration;
 using Ship.Ses.Extractor.Infrastructure.Extraction;
 using Ship.Ses.Extractor.Infrastructure.Persistance.Repositories;
+using Ship.Ses.Extractor.Infrastructure.Services;
 using Ship.Ses.Extractor.Infrastructure.Settings;
 using Ship.Ses.Extractor.Infrastructure.Shared;
 using System;
@@ -63,7 +66,13 @@ namespace Ship.Ses.Extractor.Infrastructure.Extensions
             services.AddScoped<IFhirSyncRepository<PatientSyncRecord>, MongoFhirSyncRepository<PatientSyncRecord>>();
 
 
-            
+            // Register UI EMR database services
+            services.AddSingleton<EmrDbContextFactory>();
+            services.AddScoped<IEmrDatabaseReader, EmrDatabaseReader>();
+
+            // Register repositories
+            services.AddScoped<IMappingRepository, MappingRepository>();
+
 
             return services;
         }
