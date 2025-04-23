@@ -5,29 +5,48 @@
         {
             "emrField": "patient_id",
             "fhirPath": "id",
-            "dataType": "int"
+            "dataType": "string"
         },
         {
-            "emrField": "forename",
+            "emrField": "is_active",
+            "fhirPath": "active",
+            "dataType": "bool"
+        },
+        {
+            "emrField": "marital_status",
+            "fhirPath": "maritalStatus.coding[0].code",
+            "dataType": "string"
+        },
+        {
+            "emrField": "marital_status_text",
+            "fhirPath": "maritalStatus.text",
+            "dataType": "string"
+        },
+        {
+            "emrField": "first_name",
             "fhirPath": "name[0].given[0]",
             "dataType": "string"
         },
         {
-            "emrField": "surname",
+            "emrField": "last_name",
             "fhirPath": "name[0].family",
             "dataType": "string"
         },
         {
-            "emrField": "dob",
-            "fhirPath": "birthDate",
-            "dataType": "date",
-            "format": "yyyy-MM-dd"
+            "emrField": "prefix",
+            "fhirPath": "name[0].prefix[0]",
+            "dataType": "string"
         },
         {
             "emrField": "gender",
             "fhirPath": "gender",
-            "dataType": "string",
-            "default": "unknown"
+            "dataType": "string"
+        },
+        {
+            "emrField": "birth_date",
+            "fhirPath": "birthDate",
+            "dataType": "date",
+            "format": "yyyy-MM-dd"
         },
         {
             "emrField": "phone",
@@ -37,6 +56,118 @@
         {
             "emrField": "email",
             "fhirPath": "telecom[1].value",
+            "dataType": "string"
+        },
+        {
+            "emrField": "address_line",
+            "fhirPath": "address[0].line[0]",
+            "dataType": "string"
+        },
+        {
+            "emrField": "address_city",
+            "fhirPath": "address[0].city",
+            "dataType": "string"
+        },
+        {
+            "emrField": "address_state",
+            "fhirPath": "address[0].state",
+            "dataType": "string"
+        },
+        {
+            "emrField": "address_postal",
+            "fhirPath": "address[0].postalCode",
+            "dataType": "string"
+        },
+        {
+            "emrField": "address_country",
+            "fhirPath": "address[0].country",
+            "dataType": "string"
+        },
+        {
+            "emrField": "contact_name_first",
+            "fhirPath": "contact[0].name.given[0]",
+            "dataType": "string"
+        },
+        {
+            "emrField": "contact_name_last",
+            "fhirPath": "contact[0].name.family",
+            "dataType": "string"
+        },
+        {
+            "emrField": "contact_gender",
+            "fhirPath": "contact[0].gender",
+            "dataType": "string"
+        },
+        {
+            "emrField": "contact_phone",
+            "fhirPath": "contact[0].telecom[0].value",
+            "dataType": "string"
+        },
+        {
+            "emrField": "contact_address_line",
+            "fhirPath": "contact[0].address.line[0]",
+            "dataType": "string"
+        },
+        {
+            "emrField": "contact_address_city",
+            "fhirPath": "contact[0].address.city",
+            "dataType": "string"
+        },
+        {
+            "emrField": "contact_address_state",
+            "fhirPath": "contact[0].address.state",
+            "dataType": "string"
+        },
+        {
+            "emrField": "contact_address_country",
+            "fhirPath": "contact[0].address.country",
+            "dataType": "string"
+        },
+        {
+            "emrField": "organization_reference",
+            "fhirPath": "contact[0].organization.reference",
+            "dataType": "string"
+        },
+        {
+            "emrField": "organization_display",
+            "fhirPath": "contact[0].organization.display",
+            "dataType": "string"
+        },
+        {
+            "emrField": "contact_start",
+            "fhirPath": "contact[0].period.start",
+            "dataType": "datetime",
+            "format": "yyyy-MM-ddTHH:mm:ss.fffZ"
+        },
+        {
+            "emrField": "contact_end",
+            "fhirPath": "contact[0].period.end",
+            "dataType": "datetime",
+            "format": "yyyy-MM-ddTHH:mm:ss.fffZ"
+        },
+        {
+            "emrField": "identifier_value",
+            "fhirPath": "identifier[0].value",
+            "dataType": "string"
+        },
+        {
+            "emrField": "identifier_display",
+            "fhirPath": "identifier[0].type.text",
+            "dataType": "string"
+        },
+        {
+            "emrField": "identifier_code",
+            "fhirPath": "identifier[0].type.coding[0].code",
+            "dataType": "string"
+        },
+        {
+            "emrField": "managing_org_ref",
+            "fhirPath": "managingOrganization.reference",
+            "dataType": "string"
+        },
+        {
+            "emrField": "managing_org_display",
+            "fhirPath": "managingOrganization.display",
             "dataType": "string"
         }
     ]

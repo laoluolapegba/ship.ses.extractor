@@ -8,7 +8,7 @@ namespace Ship.Ses.Extractor.Infrastructure.Persistance.Repositories
 {
     using Microsoft.EntityFrameworkCore;
     using Ship.Ses.Extractor.Domain.Entities;
-    using Ship.Ses.Extractor.Domain.Entities.Extractor;
+    using Ship.Ses.Extractor.Domain.Entities.DataMapping;
     using Ship.Ses.Extractor.Domain.Repositories.DataMapping;
     using Ship.Ses.Extractor.Domain.ValueObjects;
     using Ship.Ses.Extractor.Infrastructure.Persistance.Contexts;

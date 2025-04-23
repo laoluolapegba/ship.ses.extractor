@@ -1,0 +1,305 @@
+﻿@inject FhirResourceService FhirResourceService
+@inject IJSRuntime JSRuntime
+@using System.Text.Json
+<div class="fhir-field-container">
+    @if (_fhirLoading)
+    {
+        <div class="text-center p-3">
+            <div class="spinner-border" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+        </div>
+    }
+    else if (_fields == null || !_fields.Any())
+    {
+        <div class="alert alert-info">
+            No FHIR fields available. Please select a FHIR resource type.
+        </div>
+    }
+    else
+    {
+        <div class="mb-3">
+            <input type="text" class="form-control" placeholder="Search fields..."
+                   @bind="_fhirSearchText" @bind:event="oninput" />
+        </div>
+
+        <div class="fhir-tree-view">
+            @RenderFhirFields(_filteredFields, "")
+        </div>
+    }
+</div>
+
+@code {
+    [Parameter]
+    public int ResourceTypeId { get; set; }
+
+    [Parameter]
+    public EventCallback<MappingNode> OnFieldSelected { get; set; }
+
+    private List<FhirFieldModel> _fields = new();
+    private string _selectedFieldPath;
+    private bool _fhirLoading = true;
+    private string _fhirSearchText = "";
+    private HashSet<string> _expandedPaths = new();
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (ResourceTypeId > 0)
+        {
+            await LoadFieldsAsync();
+        }
+    }
+
+    private async Task LoadFieldsAsync()
+    {
+        _fhirLoading = true;
+        try
+        {
+            var structure = await FhirResourceService.GetResourceStructureAsync(ResourceTypeId);
+            _fields = ParseFhirStructure(structure);
+        }
+        catch (Exception ex)
+        {
+            // Handle error
+            Console.Error.WriteLine($"Error loading FHIR fields: {ex.Message}");
+        }
+        finally
+        {
+            _fhirLoading = false;
+        }
+    }
+
+    private List<FhirFieldModel> _filteredFields => string.IsNullOrWhiteSpace(_fhirSearchText)
+        ? _fields
+        : FilterFieldsBySearchText(_fields, _fhirSearchText);
+
+    private List<FhirFieldModel> FilterFieldsBySearchText(List<FhirFieldModel> fields, string searchText)
+    {
+        var result = new List<FhirFieldModel>();
+
+        foreach (var field in fields)
+        {
+            if (field.DisplayName.Contains(searchText, StringComparison.OrdinalIgnoreCase) ||
+                field.Path.Contains(searchText, StringComparison.OrdinalIgnoreCase))
+            {
+                result.Add(field);
+            }
+            else if (field.Children.Any())
+            {
+                var filteredChildren = FilterFieldsBySearchText(field.Children, searchText);
+                if (filteredChildren.Any())
+                {
+                    var clone = new FhirFieldModel
+                        {
+                            Path = field.Path,
+                            DisplayName = field.DisplayName,
+                            DataType = field.DataType,
+                            IsRequired = field.IsRequired,
+                            Children = filteredChildren
+                        };
+                    result.Add(clone);
+                }
+            }
+        }
+
+        return result;
+    }
+
+    private RenderFragment RenderFhirFields(List<FhirFieldModel> fields, string parentPath) => builder =>
+    {
+        foreach (var field in fields)
+        {
+            builder.OpenElement(0, "div");
+            builder.AddAttribute(1, "class", $"fhir-tree-item {(field.Path == _selectedFieldPath ? "selected" : "")}");
+
+            builder.OpenElement(2, "div");
+            builder.AddAttribute(3, "class", "fhir-tree-item-header");
+            builder.AddAttribute(4, "onclick", EventCallback.Factory.Create<MouseEventArgs>(this, () => SelectField(field)));
+            // builder.AddAttribute(7, "onclick", EventCallback.Factory.Create<MouseEventArgs>(this, (e) => ToggleFieldExpand(field.Path)));
+            // builder.AddAttribute(8, "onclick:stopPropagation", "true");
+
+            if (field.Children.Any())
+            {
+                builder.OpenElement(5, "span");
+                builder.AddAttribute(6, "class", $"toggle-icon {(_expandedPaths.Contains(field.Path) ? "expanded" : "")}");
+                builder.AddAttribute(7, "onclick", EventCallback.Factory.Create<MouseEventArgs>(this, async (e) =>
+                {
+                await JSRuntime.InvokeVoidAsync("stopEventPropagation", e);
+                ToggleFieldExpand(field.Path);
+                }));
+                // builder.AddAttribute(7, "onclick", EventCallback.Factory.Create<MouseEventArgs>(this, (e) =>
+                // {
+                //     e.StopPropagation();
+                //     ToggleFieldExpand(field.Path);
+                // }));
+
+                builder.OpenElement(8, "span");
+                builder.AddAttribute(9, "class", $"oi {(_expandedPaths.Contains(field.Path) ? "oi-caret-bottom" : "oi-caret-right")}");
+                builder.CloseElement();
+
+                builder.CloseElement();
+            }
+            else
+            {
+                builder.OpenElement(5, "span");
+                builder.AddAttribute(6, "class", "toggle-icon placeholder");
+                builder.CloseElement();
+            }
+
+            builder.OpenElement(10, "span");
+            builder.AddAttribute(11, "class", "item-icon");
+
+            if (field.IsRequired)
+            {
+                builder.OpenElement(12, "span");
+                builder.AddAttribute(13, "class", "oi oi-asterisk");
+                builder.AddAttribute(14, "title", "Required");
+                builder.CloseElement();
+            }
+            else
+            {
+                builder.OpenElement(12, "span");
+                builder.AddAttribute(13, "class", "oi oi-list");
+                builder.CloseElement();
+            }
+
+            builder.CloseElement();
+
+            builder.OpenElement(15, "span");
+            builder.AddAttribute(16, "class", "item-label");
+            builder.AddContent(17, field.DisplayName);
+            builder.CloseElement();
+
+            builder.OpenElement(18, "span");
+            builder.AddAttribute(19, "class", "item-type");
+            builder.AddContent(20, field.DataType);
+            builder.CloseElement();
+
+            builder.CloseElement(); // fhir-tree-item-header
+
+            if (field.Children.Any() && _expandedPaths.Contains(field.Path))
+            {
+                builder.OpenElement(21, "div");
+                builder.AddAttribute(22, "class", "fhir-tree-item-children");
+
+                builder.AddContent(23, RenderFhirFields(field.Children, field.Path));
+
+                builder.CloseElement();
+            }
+
+            builder.CloseElement(); // fhir-tree-item
+        }
+    };
+
+    private async Task SelectField(FhirFieldModel field)
+    {
+        _selectedFieldPath = field.Path;
+
+        if (field.Children.Any())
+        {
+            ToggleFieldExpand(field.Path);
+        }
+        else
+        {
+            // Notify parent only for leaf nodes
+            var node = new MappingNode
+                {
+                    Id = $"fhir-field-{field.Path.Replace('.', '-')}",
+                    Label = field.DisplayName,
+                    Type = "FHIR",
+                    Path = field.Path,
+                    DataType = field.DataType,
+                    IsRequired = field.IsRequired,
+                    IsSelected = true
+                };
+
+            await OnFieldSelected.InvokeAsync(node);
+        }
+    }
+
+    private void ToggleFieldExpand(string path)
+    {
+        if (_expandedPaths.Contains(path))
+        {
+            _expandedPaths.Remove(path);
+        }
+        else
+        {
+            _expandedPaths.Add(path);
+        }
+    }
+
+    // This is a simplified version - in a real app you would parse the JSON structure more carefully
+    private List<FhirFieldModel> ParseFhirStructure(string structure)
+    {
+        try
+        {
+            var fields = new List<FhirFieldModel>();
+            var jsonDoc = System.Text.Json.JsonDocument.Parse(structure);
+            var root = jsonDoc.RootElement;
+
+            foreach (var property in root.EnumerateObject())
+            {
+                if (property.Name == "resourceType")
+                    continue;
+
+                var field = ParseJsonProperty(property, "");
+                fields.Add(field);
+            }
+
+            return fields;
+        }
+        catch (Exception ex)
+        {
+            Console.Error.WriteLine($"Error parsing FHIR structure: {ex.Message}");
+            return new List<FhirFieldModel>();
+        }
+    }
+
+    private FhirFieldModel ParseJsonProperty(JsonProperty property, string parentPath)
+    {
+        var path = string.IsNullOrEmpty(parentPath) ? property.Name : $"{parentPath}.{property.Name}";
+        var field = new FhirFieldModel
+            {
+                Path = path,
+                DisplayName = property.Name,
+                IsRequired = false  // Default, would need resource-specific logic to determine
+            };
+
+        switch (property.Value.ValueKind)
+        {
+            case JsonValueKind.Object:
+                field.DataType = "Object";
+                foreach (var childProp in property.Value.EnumerateObject())
+                {
+                    field.Children.Add(ParseJsonProperty(childProp, path));
+                }
+                break;
+
+            case JsonValueKind.Array:
+                field.DataType = "Array";
+                // For arrays, we would typically look at the first item to determine structure
+                // This is simplified for this example
+                break;
+
+            case JsonValueKind.String:
+                field.DataType = "String";
+                break;
+
+            case JsonValueKind.Number:
+                field.DataType = "Number";
+                break;
+
+            case JsonValueKind.True:
+            case JsonValueKind.False:
+                field.DataType = "Boolean";
+                break;
+
+            default:
+                field.DataType = property.Value.ValueKind.ToString();
+                break;
+        }
+
+        return field;
+    }
+}

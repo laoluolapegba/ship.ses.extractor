@@ -16,6 +16,7 @@ using System.Text.Json.Nodes;
 using System.Threading.Tasks;
 using Serilog.Context;
 using Microsoft.Extensions.Logging;
+using System.Text.Json;
 
 namespace Ship.Ses.Extractor.Application.Services.Extractors
 {
@@ -83,6 +84,15 @@ namespace Ship.Ses.Extractor.Application.Services.Extractors
                         }
 
                         var json = _transformer.Transform(row, mapping);
+                        var options = new JsonSerializerOptions
+                        {
+                            WriteIndented = true
+                        };
+
+                        string formattedJson = JsonSerializer.Serialize(json, options);
+
+                        _logger.LogInformation("Transformed FHIR JSON:\n{FormattedJson}", formattedJson);
+
                         var record = new PatientSyncRecord
                         {
                             ResourceId = sourceId,

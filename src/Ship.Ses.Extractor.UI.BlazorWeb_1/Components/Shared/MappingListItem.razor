@@ -1,0 +1,71 @@
+﻿@using System.Text.Json
+@inject IJSRuntime JSRuntime
+
+<div class="card h-100">
+    <div class="card-header">
+        <h5 class="card-title mb-0">@Mapping.Name</h5>
+    </div>
+    <div class="card-body">
+        <div class="d-flex justify-content-between mb-2">
+            <span class="badge bg-success">@Mapping.FhirResourceTypeName</span>
+            <small class="text-muted">@Mapping.Mappings.Count mappings</small>
+        </div>
+
+        @if (!string.IsNullOrEmpty(Mapping.Description))
+        {
+            <p class="card-text">@Mapping.Description</p>
+        }
+
+        <div class="mapping-details">
+            <small class="text-muted">
+                Created: @Mapping.CreatedDate.ToString("g")
+                <br>
+                Last Modified: @Mapping.LastModifiedDate.ToString("g")
+            </small>
+        </div>
+    </div>
+    <div class="card-footer">
+        <div class="btn-group d-flex">
+            <button class="btn btn-outline-primary" @onclick="() => OnEdit.InvokeAsync()">
+                <span class="oi oi-pencil"></span> Edit
+            </button>
+            <button class="btn btn-outline-success" @onclick="ExportJson">
+                <span class="oi oi-data-transfer-download"></span> Export
+            </button>
+            <button class="btn btn-outline-danger" @onclick="ConfirmDelete">
+                <span class="oi oi-trash"></span> Delete
+            </button>
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public MappingModel Mapping { get; set; }
+
+    [Parameter]
+    public EventCallback OnEdit { get; set; }
+
+    [Parameter]
+    public EventCallback OnDelete { get; set; }
+
+    private async Task ExportJson()
+    {
+        var options = new JsonSerializerOptions
+            {
+                WriteIndented = true,
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+            };
+
+        var json = JsonSerializer.Serialize(Mapping, options);
+        await JSRuntime.InvokeVoidAsync("saveAsFile", $"{Mapping.Name.Replace(" ", "_")}.json", json);
+    }
+
+    private async Task ConfirmDelete()
+    {
+        if (await JSRuntime.InvokeAsync<bool>("confirm", $"Are you sure you want to delete the mapping '{Mapping.Name}'?"))
+        {
+            await OnDelete.InvokeAsync();
+        }
+    }
+}

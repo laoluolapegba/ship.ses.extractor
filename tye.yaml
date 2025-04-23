@@ -1,0 +1,17 @@
+name: ship-ses-extractor
+
+services:
+  - name: api
+    project: ./Ship.Ses.Extractor.Presentation.Api/Ship.Ses.Extractor.Presentation.Api.csproj
+    bindings:
+      - protocol: http
+        port: 7014
+
+  - name: blazorui
+    project: ./Ship.Ses.Extractor.UI.BlazorWeb/Ship.Ses.Extractor.UI.BlazorWeb.csproj
+    bindings:
+      - protocol: http
+        port: 7001
+
+  - name: worker
+    project: ./Ship.Ses.Extractor.Worker/Ship.Ses.Extractor.Worker.csproj

@@ -1,0 +1,262 @@
+﻿@using System.Text.Json
+@inject EmrDatabaseService EmrDatabaseService
+@inject FhirResourceService FhirResourceService
+@inject IJSRuntime JSRuntime
+
+<div class="mapping-designer">
+    <div class="mapping-toolbar mb-3">
+        <div class="btn-group">
+            <button class="btn btn-outline-primary" @onclick="() => ExportMappingJson()">
+                <span class="oi oi-data-transfer-download"></span> Export JSON
+            </button>
+            <button class="btn btn-outline-danger" @onclick="ClearMappings">
+                <span class="oi oi-trash"></span> Clear Mappings
+            </button>
+        </div>
+    </div>
+
+    <div class="mapping-container">
+        <div class="row">
+            <div class="col-md-5">
+                <div class="card emr-panel">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="card-title mb-0">EMR Database Tables and Columns</h5>
+                    </div>
+                    <div class="card-body p-2">
+                        <EmrTableList OnTableSelected="HandleTableSelected" 
+                                     OnColumnSelected="HandleEmrColumnSelected" />
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-2 connection-panel">
+                <div class="d-flex flex-column justify-content-center align-items-center h-100">
+                    @if (_selectedEmrColumn != null && _selectedFhirField != null)
+                    {
+                        <div class="mapping-action-panel text-center">
+                            <div class="mb-3">
+                                <strong class="d-block mb-2">Create Mapping</strong>
+                                <div class="mapping-preview">
+                                    <div class="source-field">@_selectedEmrColumn.TableName.@_selectedEmrColumn.ColumnName</div>
+                                    <div class="mapping-arrow">→</div>
+                                    <div class="target-field">@_selectedFhirField.Path</div>
+                                </div>
+                            </div>
+                            <button class="btn btn-success" @onclick="CreateMapping">
+                                <span class="oi oi-plus"></span> Add Mapping
+                            </button>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="mapping-instructions">
+                            <p class="text-center">
+                                <span class="oi oi-info"></span>
+                                Select an EMR column from the left panel and a FHIR field from the right panel to create a mapping.
+                            </p>
+                        </div>
+                    }
+                </div>
+            </div>
+            
+            <div class="col-md-5">
+                <div class="card fhir-panel">
+                    <div class="card-header bg-success text-white">
+                        <h5 class="card-title mb-0">FHIR Resource: @ResourceTypeName</h5>
+                    </div>
+                    <div class="card-body p-2">
+                        <FhirFieldTree ResourceTypeId="@ResourceTypeId" 
+                                      OnFieldSelected="HandleFhirFieldSelected" />
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        @if (_currentMappings.Any())
+        {
+            <div class="row mt-4">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header bg-info text-white">
+                            <h5 class="card-title mb-0">Current Mappings</h5>
+                        </div>
+                        <div class="card-body">
+                            <table class="table table-bordered table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>EMR Source</th>
+                                        <th>FHIR Target</th>
+                                        <th>Transformation</th>
+                                        <th width="100">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var mapping in _currentMappings)
+                                    {
+                                        <tr>
+                                            <td>@mapping.EmrTable.@mapping.EmrColumn</td>
+                                            <td>@mapping.FhirPath</td>
+                                            <td>
+                                                @if (string.IsNullOrEmpty(mapping.TransformationExpression))
+                                                {
+                                                    <span class="text-muted">No transformation</span>
+                                                }
+                                                else
+                                                {
+                                                    @mapping.TransformationExpression
+                                                }
+                                            </td>
+                                            <td>
+                                                <div class="btn-group">
+                                                    <button class="btn btn-sm btn-outline-primary" 
+                                                            @onclick="() => EditMapping(mapping)">
+                                                        <span class="oi oi-pencil"></span>
+                                                    </button>
+                                                    <button class="btn btn-sm btn-outline-danger" 
+                                                            @onclick="() => RemoveMapping(mapping)">
+                                                        <span class="oi oi-trash"></span>
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public int ResourceTypeId { get; set; }
+    
+    [Parameter]
+    public string ResourceTypeName { get; set; }
+    
+    [Parameter]
+    public List<ColumnMappingModel> ExistingMappings { get; set; } = new();
+    
+    [Parameter]
+    public EventCallback<List<ColumnMappingModel>> OnMappingsChanged { get; set; }
+    
+    private MappingNode _selectedEmrColumn;
+    private MappingNode _selectedFhirField;
+    private List<ColumnMappingModel> _currentMappings = new();
+    private bool _isEditingMapping = false;
+    private ColumnMappingModel _editingMapping;
+    
+    protected override async Task OnParametersSetAsync()
+    {
+        // Initialize mappings from existing mappings
+        if (ExistingMappings != null && ExistingMappings.Any())
+        {
+            _currentMappings = ExistingMappings.ToList();
+        }
+    }
+    
+    private void HandleTableSelected(MappingNode table)
+    {
+        // Table selection logic - maybe clear column selection
+        _selectedEmrColumn = null;
+    }
+    
+    private void HandleEmrColumnSelected(MappingNode column)
+    {
+        _selectedEmrColumn = column;
+    }
+    
+    private void HandleFhirFieldSelected(MappingNode field)
+    {
+        _selectedFhirField = field;
+    }
+    
+    private async Task CreateMapping()
+    {
+        if (_selectedEmrColumn == null || _selectedFhirField == null)
+            return;
+        
+        // Check if mapping already exists
+        var existingMapping = _currentMappings.FirstOrDefault(m => 
+            m.EmrTable == _selectedEmrColumn.TableName && 
+            m.EmrColumn == _selectedEmrColumn.ColumnName && 
+            m.FhirPath == _selectedFhirField.Path);
+            
+        if (existingMapping != null)
+        {
+            await JSRuntime.InvokeVoidAsync("alert", "This mapping already exists.");
+            return;
+        }
+        
+        var newMapping = new ColumnMappingModel
+        {
+            EmrTable = _selectedEmrColumn.TableName,
+            EmrColumn = _selectedEmrColumn.ColumnName,
+            FhirPath = _selectedFhirField.Path,
+            TransformationExpression = null // Default to no transformation
+        };
+        
+        if (_isEditingMapping)
+        {
+            // Remove old mapping
+            _currentMappings.Remove(_editingMapping);
+            _isEditingMapping = false;
+            _editingMapping = null;
+        }
+        
+        _currentMappings.Add(newMapping);
+        await NotifyMappingsChanged();
+        
+        // Clear selections after creating mapping
+        _selectedEmrColumn = null;
+        _selectedFhirField = null;
+    }
+    
+    private void EditMapping(ColumnMappingModel mapping)
+    {
+        _isEditingMapping = true;
+        _editingMapping = mapping;
+        
+        // Find and select the corresponding nodes
+        // This would require looking up the EMR column and FHIR field
+        // For now, we'll just set up the state for editing
+    }
+    
+    private async Task RemoveMapping(ColumnMappingModel mapping)
+    {
+        if (await JSRuntime.InvokeAsync<bool>("confirm", "Are you sure you want to remove this mapping?"))
+        {
+            _currentMappings.Remove(mapping);
+            await NotifyMappingsChanged();
+        }
+    }
+    
+    private async Task ClearMappings()
+    {
+        if (await JSRuntime.InvokeAsync<bool>("confirm", "Are you sure you want to clear all mappings?"))
+        {
+            _currentMappings.Clear();
+            await NotifyMappingsChanged();
+        }
+    }
+    
+    private async Task ExportMappingJson()
+    {
+        var options = new JsonSerializerOptions
+        {
+            WriteIndented = true,
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+        };
+        
+        var json = JsonSerializer.Serialize(_currentMappings, options);
+        await JSRuntime.InvokeVoidAsync("saveAsFile", "mapping.json", json);
+    }
+    
+    private Task NotifyMappingsChanged()
+    {
+        return OnMappingsChanged.InvokeAsync(_currentMappings);
+    }
+}

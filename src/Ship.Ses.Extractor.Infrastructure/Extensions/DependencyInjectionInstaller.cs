@@ -23,7 +23,7 @@ namespace Ship.Ses.Extractor.Infrastructure.Installers
         {
             // Register DbContext
             services.AddDbContext<ExtractorDbContext>(options =>
-                options.UseSqlServer(
+                options.UseMySQL(
                     configuration.GetConnectionString("DefaultConnection"),
                     b => b.MigrationsAssembly(typeof(ExtractorDbContext).Assembly.FullName)));
 

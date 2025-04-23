@@ -1,0 +1,176 @@
+﻿@inject EmrDatabaseService EmrDatabaseService
+
+<div class="emr-table-container">
+    @if (_tableLoading)
+    {
+        <div class="text-center p-3">
+            <div class="spinner-border" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+        </div>
+    }
+    else if (_tables == null || !_tables.Any())
+    {
+        <div class="alert alert-info">
+            No tables found. Please check your database connection settings.
+        </div>
+    }
+    else
+    {
+        <div class="mb-3">
+            <input type="text" class="form-control" placeholder="Search tables..."
+                   @bind="_tableSearchText" @bind:event="oninput" />
+        </div>
+
+        <div class="emr-tree-view">
+            @foreach (var table in _filteredTables)
+            {
+                <div class="emr-tree-item @(table.Name == _selectedTable?.Name ? "selected" : "")"
+                     @onclick="() => SelectTable(table)">
+                    <div class="emr-tree-item-header">
+                        <span class="toggle-icon @(_expandedTables.Contains(table.Name) ? "expanded" : "")"
+                              @onclick:stopPropagation="true"
+                              @onclick="() => ToggleTableExpand(table.Name)">
+                            <span class="oi @(_expandedTables.Contains(table.Name) ? "oi-caret-bottom" : "oi-caret-right")"></span>
+                        </span>
+                        <span class="item-icon"><span class="oi oi-table"></span></span>
+                        <span class="item-label">@table.Name</span>
+                        <span class="item-badge">@table.Columns.Count</span>
+                    </div>
+
+                    @if (_expandedTables.Contains(table.Name))
+                    {
+                        <div class="emr-tree-item-children">
+                            @foreach (var column in table.Columns)
+                            {
+                                <div class="emr-tree-item column-item
+                                      @(IsColumnSelected(table.Name, column.Name) ? "selected" : "")"
+                                     @onclick:stopPropagation="true"
+                                     @onclick="() => SelectColumn(table, column)">
+                                    <div class="emr-tree-item-header">
+                                        <span class="item-icon">
+                                            @if (column.IsPrimaryKey)
+                                            {
+                                                <span class="oi oi-key" title="Primary Key"></span>
+                                            }
+                                            else
+                                            {
+                                                <span class="oi oi-list"></span>
+                                            }
+                                        </span>
+                                        <span class="item-label">@column.Name</span>
+                                        <span class="item-type">@column.DataType</span>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    }
+                </div>
+            }
+        </div>
+    }
+</div>
+
+@code {
+    [Parameter]
+    public EventCallback<MappingNode> OnTableSelected { get; set; }
+
+    [Parameter]
+    public EventCallback<MappingNode> OnColumnSelected { get; set; }
+
+    private List<EmrTableModel> _tables = new();
+    private EmrTableModel _selectedTable;
+    private string _selectedColumnName;
+    private bool _tableLoading = true;
+    private string _tableSearchText = "";
+    private HashSet<string> _expandedTables = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadTablesAsync();
+    }
+
+    private async Task LoadTablesAsync()
+    {
+        _tableLoading = true;
+        try
+        {
+            _tables = await EmrDatabaseService.GetTablesAsync();
+        }
+        catch (Exception ex)
+        {
+            // Handle error
+            Console.Error.WriteLine($"Error loading EMR tables: {ex.Message}");
+        }
+        finally
+        {
+            _tableLoading = false;
+        }
+    }
+
+    private List<EmrTableModel> _filteredTables => string.IsNullOrWhiteSpace(_tableSearchText)
+        ? _tables
+        : _tables.Where(t => t.Name.Contains(_tableSearchText, StringComparison.OrdinalIgnoreCase) ||
+                          t.Columns.Any(c => c.Name.Contains(_tableSearchText, StringComparison.OrdinalIgnoreCase)))
+                 .ToList();
+
+    private async Task SelectTable(EmrTableModel table)
+    {
+        _selectedTable = table;
+        _selectedColumnName = null;
+
+        // Toggle expansion
+        ToggleTableExpand(table.Name);
+
+        // Notify parent
+        var node = new MappingNode
+            {
+                Id = $"emr-table-{table.Name}",
+                Label = table.Name,
+                Type = "EMR",
+                TableName = table.Name,
+                IsSelected = true,
+                IsExpanded = _expandedTables.Contains(table.Name)
+            };
+
+        await OnTableSelected.InvokeAsync(node);
+    }
+
+    private void ToggleTableExpand(string tableName)
+    {
+        if (_expandedTables.Contains(tableName))
+        {
+            _expandedTables.Remove(tableName);
+        }
+        else
+        {
+            _expandedTables.Add(tableName);
+        }
+    }
+
+    private async Task SelectColumn(EmrTableModel table, EmrColumnModel column)
+    {
+        _selectedTable = table;
+        _selectedColumnName = column.Name;
+
+        // Notify parent
+        var node = new MappingNode
+            {
+                Id = $"emr-column-{table.Name}-{column.Name}",
+                Label = column.Name,
+                Type = "EMR",
+                TableName = table.Name,
+                ColumnName = column.Name,
+                DataType = column.DataType,
+                IsPrimaryKey = column.IsPrimaryKey,
+                IsSelected = true
+            };
+
+        await OnColumnSelected.InvokeAsync(node);
+    }
+
+    private bool IsColumnSelected(string tableName, string columnName)
+    {
+        return _selectedTable?.Name == tableName && _selectedColumnName == columnName;
+    }
+}

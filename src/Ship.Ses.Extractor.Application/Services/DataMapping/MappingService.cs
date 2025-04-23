@@ -9,7 +9,7 @@ namespace Ship.Ses.Extractor.Application.Services.DataMapping
     using Ship.Ses.Extractor.Application.DTOs;
     using Ship.Ses.Extractor.Application.Interfaces;
     using Ship.Ses.Extractor.Domain.Entities;
-    using Ship.Ses.Extractor.Domain.Entities.Extractor;
+    using Ship.Ses.Extractor.Domain.Entities.DataMapping;
     using Ship.Ses.Extractor.Domain.Repositories.DataMapping;
     using Ship.Ses.Extractor.Domain.ValueObjects;
     using System;

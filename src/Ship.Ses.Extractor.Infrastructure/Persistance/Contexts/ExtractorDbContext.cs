@@ -1,6 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Ship.Ses.Extractor.Domain.Entities.DataMapping;
 using Ship.Ses.Extractor.Domain.Entities.Extractor;
 using Ship.Ses.Extractor.Domain.Models.Extractor;
+using Ship.Ses.Extractor.Domain.ValueObjects;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,6 +17,7 @@ namespace Ship.Ses.Extractor.Infrastructure.Persistance.Contexts
         public DbSet<DataSource> DataSources { get; set; }
         public DbSet<MappingDefinition> Mappings { get; set; }
         public DbSet<FhirResourceType> FhirResourceTypes { get; set; }
+        public DbSet<ColumnMapping> ColumnMappings { get; set; }
         public ExtractorDbContext(DbContextOptions<ExtractorDbContext> options)
             : base(options)
         {
@@ -29,6 +32,18 @@ namespace Ship.Ses.Extractor.Infrastructure.Persistance.Contexts
         {
             base.OnModelCreating(modelBuilder);
 
+            //modelBuilder.Entity<ColumnMapping>().HasNoKey(); // ColumnMapping is a value object, no need for a key
+            //modelBuilder.Entity<MappingDefinition>()
+            //    .HasMany(m => m.ColumnMappings)
+            //    .WithOne()
+            //    .HasForeignKey("MappingDefinitionId");
+            //modelBuilder.Entity<MappingDefinition>()
+            //    .Property(e => e.ColumnMappings)
+            //    .HasConversion(
+            //        v => JsonSerializer.Serialize(v, (JsonSerializerOptions)null),
+            //        v => JsonSerializer.Deserialize<List<ColumnMapping>>(v, (JsonSerializerOptions)null));
+
+           
             modelBuilder.Entity<MappingDefinition>(entity =>
             {
                 entity.HasKey(e => e.Id);
@@ -40,8 +55,8 @@ namespace Ship.Ses.Extractor.Infrastructure.Persistance.Contexts
 
                 // Store the list of column mappings as JSON
                 entity.Property<string>("ColumnMappingsJson")
-                    .HasColumnName("ColumnMappings")
-                    .HasColumnType("nvarchar(max)");
+                    .HasColumnName("column_mappings")
+                    .HasColumnType("json");
 
                 // Configure relationship to FhirResourceType
                 entity.HasOne(e => e.FhirResourceType)
@@ -57,6 +72,20 @@ namespace Ship.Ses.Extractor.Infrastructure.Persistance.Contexts
                 entity.Property(e => e.Structure).IsRequired().HasColumnType("nvarchar(max)");
                 entity.Property(e => e.IsActive).IsRequired();
             });
+
+
+
+            modelBuilder.Entity<MappingDefinition>()
+                .HasMany(md => md.ColumnMappings)
+                .WithOne(cm => cm.MappingDefinition)
+                .HasForeignKey(cm => cm.MappingDefinitionId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<ColumnMapping>()
+               .HasOne(cm => cm.MappingDefinition)
+               .WithMany(md => md.ColumnMappings)
+               .HasForeignKey(cm => cm.MappingDefinitionId)
+               .OnDelete(DeleteBehavior.Cascade);
         }
 
         public override int SaveChanges()
@@ -76,10 +105,10 @@ namespace Ship.Ses.Extractor.Infrastructure.Persistance.Contexts
             foreach (var entry in ChangeTracker.Entries<MappingDefinition>().Where(e => e.State == EntityState.Added || e.State == EntityState.Modified))
             {
                 var entity = entry.Entity;
-                if (entity.ColumnMappings != null)
-                {
-                    entry.Property("ColumnMappingsJson").CurrentValue = JsonSerializer.Serialize(entity.ColumnMappings);
-                }
+                //if (entity.ColumnMappings != null)
+                //{
+                //    entry.Property("ColumnMappingsJson").CurrentValue = JsonSerializer.Serialize(entity.ColumnMappings);
+                //}
             }
         }
     }

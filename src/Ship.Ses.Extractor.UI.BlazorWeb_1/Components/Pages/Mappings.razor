@@ -1,0 +1,91 @@
+﻿@page "/mappings"
+@inject MappingService MappingService
+@inject NavigationManager NavigationManager
+@inject IJSRuntime JSRuntime
+<PageTitle>Mappings - EMR-FHIR Mapping Tool</PageTitle>
+
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>Mappings</h1>
+        <button class="btn btn-primary" @onclick="CreateNewMapping">Create New Mapping</button>
+    </div>
+
+    @if (_loading)
+    {
+        <Loading Message="Loading mappings..." />
+    }
+    else if (_mappings == null || !_mappings.Any())
+    {
+        <div class="alert alert-info">
+            No mappings found. Create your first mapping by clicking the "Create New Mapping" button.
+        </div>
+    }
+    else
+    {
+        <div class="row">
+            @foreach (var mapping in _mappings)
+            {
+                <div class="col-md-6 col-lg-4 mb-4">
+                    <MappingListItem Mapping="mapping" OnEdit="() => EditMapping(mapping.Id)" OnDelete="() => DeleteMapping(mapping.Id)" />
+                </div>
+            }
+        </div>
+    }
+</div>
+
+@code {
+    private List<MappingModel> _mappings;
+    private bool _loading = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadMappingsAsync();
+    }
+
+    private async Task LoadMappingsAsync()
+    {
+        _loading = true;
+        try
+        {
+            _mappings = await MappingService.GetMappingsAsync();
+        }
+        catch (Exception ex)
+        {
+            // Handle error
+            Console.Error.WriteLine($"Error loading mappings: {ex.Message}");
+        }
+        finally
+        {
+            _loading = false;
+        }
+    }
+
+    private void CreateNewMapping()
+    {
+        NavigationManager.NavigateTo("/mappings/create");
+    }
+
+    private void EditMapping(Guid id)
+    {
+        NavigationManager.NavigateTo($"/mappings/edit/{id}");
+    }
+
+    private async Task DeleteMapping(Guid id)
+    {
+        
+
+        if (await JSRuntime.InvokeAsync<bool>("confirm", new object[] { "Are you sure you want to delete this mapping?" }))
+        {
+            try
+            {
+                await MappingService.DeleteMappingAsync(id);
+                await LoadMappingsAsync();
+            }
+            catch (Exception ex)
+            {
+                // Handle error
+                Console.Error.WriteLine($"Error deleting mapping: {ex.Message}");
+            }
+        }
+    }
+}

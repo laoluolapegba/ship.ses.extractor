@@ -1,0 +1,173 @@
+﻿@page "/mappings/create"
+@page "/mappings/edit/{Id:guid}"
+@using System.Text.Json
+@inject FhirResourceService FhirResourceService
+@inject MappingService MappingService
+@inject NavigationManager NavigationManager
+
+<PageTitle>@(_isEditing ? "Edit Mapping" : "Create Mapping") - EMR-FHIR Mapping Tool</PageTitle>
+
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>@(_isEditing ? "Edit Mapping" : "Create Mapping")</h1>
+        <div>
+            <button class="btn btn-outline-secondary me-2" @onclick="GoBack">Cancel</button>
+            <button class="btn btn-primary" @onclick="SaveMapping">Save Mapping</button>
+        </div>
+    </div>
+
+    @if (_loading)
+    {
+        <Loading Message="Loading..." />
+    }
+    else
+    {
+        <div class="card mb-4">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="mappingName" class="form-label">Mapping Name</label>
+                        <input type="text" class="form-control" id="mappingName" @bind="_mapping.Name" placeholder="Enter a name for this mapping">
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="resourceType" class="form-label">FHIR Resource Type</label>
+                        <select class="form-select" id="resourceType" value="@_mapping.FhirResourceTypeId" @onchange="OnResourceTypeChanged">
+                            <option value="0">-- Select Resource Type --</option>
+                            @foreach (var resourceType in _resourceTypes)
+                            {
+                                <option value="@resourceType.Id">@resourceType.Name</option>
+                            }
+                        </select>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label for="mappingDescription" class="form-label">Description</label>
+                    <textarea class="form-control" id="mappingDescription" @bind="_mapping.Description" rows="2" placeholder="Optional description"></textarea>
+                </div>
+            </div>
+        </div>
+
+        @if (_mapping.FhirResourceTypeId > 0)
+        {
+            <MappingDesigner ResourceTypeId="_mapping.FhirResourceTypeId"
+                             ResourceTypeName="_mapping.FhirResourceTypeName"
+                             ExistingMappings="_mapping.Mappings"
+                             OnMappingsChanged="UpdateMappings" />
+        }
+        else
+        {
+            <div class="alert alert-info">
+                Please select a FHIR Resource Type to start creating mappings.
+            </div>
+        }
+    }
+</div>
+
+@code {
+    [Parameter]
+    public Guid? Id { get; set; }
+
+    private MappingModel _mapping = new();
+    private List<FhirResourceTypeModel> _resourceTypes = new();
+    private bool _loading = true;
+    private bool _isEditing => Id.HasValue;
+
+    private void OnResourceTypeChanged(ChangeEventArgs e)
+    {
+        if (int.TryParse(e.Value?.ToString(), out int selectedId))
+        {
+            _mapping.FhirResourceTypeId = selectedId;
+            ResourceTypeChanged(e); // Call your original method
+        }
+    }
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            _resourceTypes = await FhirResourceService.GetResourceTypesAsync();
+            
+            if (_isEditing)
+            {
+                _mapping = await MappingService.GetMappingAsync(Id.Value);
+            }
+            else
+            {
+                _mapping = new MappingModel
+                {
+                    Id = Guid.NewGuid(),
+                    CreatedDate = DateTime.UtcNow,
+                    LastModifiedDate = DateTime.UtcNow
+                };
+            }
+        }
+        catch (Exception ex)
+        {
+            // Handle error
+            Console.Error.WriteLine($"Error loading data: {ex.Message}");
+        }
+        finally
+        {
+            _loading = false;
+        }
+    }
+
+    private void UpdateMappings(List<ColumnMappingModel> mappings)
+    {
+        _mapping.Mappings = mappings;
+    }
+
+    private async Task ResourceTypeChanged(ChangeEventArgs e)
+    {
+        if (int.TryParse(e.Value.ToString(), out int resourceTypeId) && resourceTypeId > 0)
+        {
+            var resourceType = _resourceTypes.FirstOrDefault(rt => rt.Id == resourceTypeId);
+            if (resourceType != null)
+            {
+                _mapping.FhirResourceTypeId = resourceTypeId;
+                _mapping.FhirResourceTypeName = resourceType.Name;
+            }
+        }
+    }
+
+    private async Task SaveMapping()
+    {
+        try
+        {
+            if (string.IsNullOrWhiteSpace(_mapping.Name))
+            {
+                // Show validation error
+                return;
+            }
+
+            if (_mapping.FhirResourceTypeId <= 0)
+            {
+                // Show validation error
+                return;
+            }
+
+            _mapping.LastModifiedDate = DateTime.UtcNow;
+
+            if (_isEditing)
+            {
+                await MappingService.UpdateMappingAsync(_mapping);
+            }
+            else
+            {
+                _mapping.CreatedDate = DateTime.UtcNow;
+                await MappingService.CreateMappingAsync(_mapping);
+            }
+
+            NavigationManager.NavigateTo("/mappings");
+        }
+        catch (Exception ex)
+        {
+            // Handle error
+            Console.Error.WriteLine($"Error saving mapping: {ex.Message}");
+        }
+    }
+
+    private void GoBack()
+    {
+        NavigationManager.NavigateTo("/mappings");
+    }
+}
