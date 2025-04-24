@@ -75,8 +75,10 @@ namespace Ship.Ses.Extractor.Infrastructure.Configuration
 
             foreach (var field in mapping.Fields)
             {
-                if (string.IsNullOrWhiteSpace(field.EmrField))
-                    throw new InvalidOperationException($"A field in '{fileName}' has an empty 'emrField'");
+                if (string.IsNullOrWhiteSpace(field.EmrField) && !mapping.Constants.ContainsKey(field.FhirPath))
+                {
+                    throw new InvalidOperationException($"A field in '{fileName}' has an empty 'emrField' and is not defined in constants.");
+                }
 
                 if (string.IsNullOrWhiteSpace(field.FhirPath))
                     throw new InvalidOperationException($"A field in '{fileName}' has an empty 'fhirPath'");

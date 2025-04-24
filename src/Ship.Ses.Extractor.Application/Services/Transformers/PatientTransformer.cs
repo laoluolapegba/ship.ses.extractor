@@ -1,41 +1,86 @@
-﻿using Ship.Ses.Extractor.Domain.Models.Extractor;
+﻿using Microsoft.Extensions.Logging;
+using Ship.Ses.Extractor.Domain.Models.Extractor;
 using Ship.Ses.Extractor.Domain.Repositories.Transformer;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Text.Json.Nodes;
-using System.Threading.Tasks;
 
 namespace Ship.Ses.Extractor.Application.Services.Transformers
-{
+{    
     public class PatientTransformer : IResourceTransformer<JsonObject>
     {
-        public JsonObject Transform(IDictionary<string, object> row, TableMapping mapping)
-        {
-            var fhir = new JsonObject
+            private readonly ILogger<PatientTransformer> _logger;
+
+            public PatientTransformer(ILogger<PatientTransformer> logger)
             {
-                ["resourceType"] = mapping.ResourceType
-            };
-
-            foreach (var field in mapping.Fields)
+                _logger = logger;
+            }
+            public JsonObject Transform(IDictionary<string, object> row, TableMapping mapping)
             {
-                var value = row.TryGetValue(field.EmrField, out var rawVal) ? rawVal : null;
+                var fhir = new JsonObject
+                {
+                    ["resourceType"] = mapping.ResourceType
+                };
 
-                if (value == null && field.Default != null)
-                    value = field.Default;
+                foreach (var field in mapping.Fields)
+                {
+                    var value = row.TryGetValue(field.EmrField, out var rawVal) ? rawVal : null;
 
-                if (value == null) continue;
+                    if (value == null && field.Default != null)
+                        value = field.Default;
 
-                value = ConvertField(value, field.DataType, field.Format);
+                    if (value == null) continue;
 
-                SetFhirValue(fhir, field.FhirPath, value);
+                    value = ConvertField(value, field.DataType, field.Format);
+
+                    var jsonValue = JsonValue.Create(value);
+                    FhirJsonHelper.SetFhirValue(fhir, field.FhirPath, jsonValue, _logger);
+                }
+
+                FhirJsonHelper.ApplyConstants(fhir, mapping.Constants, _logger);
+
+                return fhir;
             }
 
-            return fhir;
+            private object ConvertField(object value, string? type, string? format)
+            {
+                try
+                {
+                    return type switch
+                    {
+                        "date" when value is DateTime dt => dt.ToString(format ?? "yyyy-MM-dd"),
+                        "date" => DateTime.Parse(value.ToString()!).ToString(format ?? "yyyy-MM-dd"),
+                        _ => value.ToString()
+                    };
+                }
+                catch
+                {
+                    return value.ToString(); // fallback
+                }
+            }
+            public JsonObject Transform1(IDictionary<string, object> row, TableMapping mapping)
+            {
+                var fhir = new JsonObject
+                {
+                    ["resourceType"] = mapping.ResourceType
+                };
+
+                foreach (var field in mapping.Fields)
+                {
+                    var value = row.TryGetValue(field.EmrField, out var rawVal) ? rawVal : null;
+
+                    if (value == null && field.Default != null)
+                        value = field.Default;
+
+                    if (value == null) continue;
+
+                    value = ConvertField(value, field.DataType, field.Format);
+
+                    SetFhirValue(fhir, field.FhirPath, value);
+                }
+
+                return fhir;
         }
 
-        private object ConvertField(object value, string? type, string? format)
+        private object ConvertField1(object value, string? type, string? format)
         {
             try
             {
@@ -99,6 +144,7 @@ namespace Ship.Ses.Extractor.Application.Services.Transformers
                 }
             }
         }
+
     }
 
 }

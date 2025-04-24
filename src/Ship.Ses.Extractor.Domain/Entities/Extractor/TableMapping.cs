@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.Json.Nodes;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
@@ -22,5 +23,7 @@ namespace Ship.Ses.Extractor.Domain.Models.Extractor
         public string TableName { get; set; } = default!;
         [JsonPropertyName("fields")]
         public List<FieldMapping> Fields { get; set; } = new();
+        [JsonPropertyName("constants")]
+        public Dictionary<string, JsonNode> Constants { get; set; } = new();
     }
 }
