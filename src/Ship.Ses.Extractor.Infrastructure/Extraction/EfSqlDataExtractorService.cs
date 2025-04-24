@@ -55,7 +55,7 @@ namespace Ship.Ses.Extractor.Infrastructure.Extraction
                         {
                             var value = await reader.IsDBNullAsync(i, cancellationToken)
                                 ? null
-                                : reader.GetValue(i); // This is where the crash happens
+                                : reader.GetValue(i); // This is where the crash happens - laolu
 
                             row[columnName] = value;
                         }
