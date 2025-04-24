@@ -18,6 +18,7 @@ namespace Ship.Ses.Extractor.Infrastructure.Persistance.Contexts
         public DbSet<MappingDefinition> Mappings { get; set; }
         public DbSet<FhirResourceType> FhirResourceTypes { get; set; }
         public DbSet<ColumnMapping> ColumnMappings { get; set; }
+        public DbSet<EmrConnection> EmrConnections { get; set; }
         public ExtractorDbContext(DbContextOptions<ExtractorDbContext> options)
             : base(options)
         {

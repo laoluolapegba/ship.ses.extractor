@@ -4,6 +4,45 @@
         <name>Ship.Ses.Extractor.Presentation.Api</name>
     </assembly>
     <members>
+        <member name="M:Ship.Ses.Extractor.Presentation.Api.Controllers.v1.EmrController.GetTables">
+            <summary>
+            Retrieves a list of EMR tables.
+            </summary>
+            <returns>A list of EMR tables.</returns>
+        </member>
+        <member name="M:Ship.Ses.Extractor.Presentation.Api.Controllers.v1.EmrController.GetTableSchema(System.String)">
+            <summary>
+            Retrieves the schema for a specific EMR table.
+            </summary>
+            <param name="tableName">The name of the table.</param>
+            <returns>The schema of the specified table.</returns>
+        </member>
+        <member name="M:Ship.Ses.Extractor.Presentation.Api.Controllers.v1.EmrController.TestConnection">
+            <summary>
+            Tests the EMR database connection.
+            </summary>
+            <returns>Result of the connection test.</returns>
+        </member>
+        <member name="M:Ship.Ses.Extractor.Presentation.Api.Controllers.v1.EmrController.GetConnections">
+            <summary>
+            Retrieves a list of active EMR connections.
+            </summary>
+            <returns>A list of EMR connections.</returns>
+        </member>
+        <member name="M:Ship.Ses.Extractor.Presentation.Api.Controllers.v1.EmrController.SelectConnection(System.Int32)">
+            <summary>
+            Selects a specific EMR connection by ID.
+            </summary>
+            <param name="id">The ID of the EMR connection.</param>
+            <returns>Result of the selection operation.</returns>
+        </member>
+        <member name="M:Ship.Ses.Extractor.Presentation.Api.Controllers.v1.EmrController.TestConnectionById(System.Int32)">
+            <summary>
+            Tests a specific EMR connection by ID.
+            </summary>
+            <param name="id">The ID of the EMR connection.</param>
+            <returns>Result of the connection test.</returns>
+        </member>
         <member name="M:Ship.Ses.Extractor.Presentation.Api.Controllers.v1.MappingsController.GetResourceTypes">
             <summary>
             Retrieves all supported FHIR resource types.

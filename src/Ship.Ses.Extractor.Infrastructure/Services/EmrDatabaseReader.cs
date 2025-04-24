@@ -6,12 +6,16 @@ using System.Threading.Tasks;
 
 namespace Ship.Ses.Extractor.Infrastructure.Services
 {
+    using Microsoft.Data.SqlClient;
     using Microsoft.Extensions.Logging;
     using MySql.Data.MySqlClient;
+    using Npgsql;
     using Ship.Ses.Extractor.Application.Services;
     using Ship.Ses.Extractor.Application.Services.DataMapping;
+    using Ship.Ses.Extractor.Domain.Entities.DataMapping;
     using Ship.Ses.Extractor.Domain.ValueObjects;
     using Ship.Ses.Extractor.Infrastructure.Persistance.Repositories;
+    using Ship.Ses.Extractor.Shared.Enums;
     using System;
     using System.Collections.Generic;
     using System.Data;
@@ -23,34 +27,157 @@ namespace Ship.Ses.Extractor.Infrastructure.Services
     {
         private readonly EmrDbContextFactory _dbContextFactory;
         private readonly ILogger<EmrDatabaseReader> _logger;
-
+        private readonly EmrConnection _connection;
         public EmrDatabaseReader(EmrDbContextFactory dbContextFactory, ILogger<EmrDatabaseReader> logger)
         {
             _dbContextFactory = dbContextFactory;
             _logger = logger;
         }
+        public EmrDatabaseReader(EmrConnection connection)
+        {
+            _connection = connection ?? throw new ArgumentNullException(nameof(connection));
+        }
 
+        
         public async Task<IEnumerable<string>> GetTableNamesAsync()
         {
             var tables = new List<string>();
 
-            try
-            {
-                using var connection = _dbContextFactory.CreateConnection();
-                await connection.OpenAsync();
+            using var connection = CreateConnection();
+            await connection.OpenAsync();
 
-                tables = await GetTableNamesForConnectionType(connection);
-            }
-            catch (Exception ex)
+            // Query depends on the database type
+            string query = GetTableNamesQuery();
+
+            using var command = connection.CreateCommand();
+            command.CommandText = query;
+
+            using var reader = await command.ExecuteReaderAsync();
+            while (await reader.ReadAsync())
             {
-                _logger.LogError(ex, "Error retrieving database tables");
-                throw;
+                tables.Add(reader.GetString(0));
             }
 
             return tables;
         }
 
         public async Task<TableSchema> GetTableSchemaAsync(string tableName)
+        {
+            var columns = new List<ColumnSchema>();
+
+            using var connection = CreateConnection();
+            await connection.OpenAsync();
+
+            // Get primary key columns
+            var primaryKeyColumns = await GetPrimaryKeyColumnsAsync(connection, tableName);
+
+            // Query depends on the database type
+            string query = GetColumnSchemaQuery(tableName);
+
+            using var command = connection.CreateCommand();
+            command.CommandText = query;
+
+            using var reader = await command.ExecuteReaderAsync();
+            while (await reader.ReadAsync())
+            {
+                var columnName = reader.GetString(reader.GetOrdinal("COLUMN_NAME"));
+                var dataType = reader.GetString(reader.GetOrdinal("DATA_TYPE"));
+                var isNullable = reader.GetString(reader.GetOrdinal("IS_NULLABLE")) == "YES";
+                var isPrimaryKey = primaryKeyColumns.Contains(columnName);
+
+                columns.Add(new ColumnSchema(columnName, dataType, isNullable, isPrimaryKey));
+            }
+
+            return new TableSchema(tableName, columns);
+        }
+        private string GetTableNamesQuery()
+        {
+            return _connection.DatabaseType switch
+            {
+                DatabaseType.MySql =>
+                    $"SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = '{_connection.DatabaseName}' AND TABLE_TYPE = 'BASE TABLE'",
+
+                DatabaseType.PostgreSql =>
+                    "SELECT tablename FROM pg_catalog.pg_tables WHERE schemaname = 'public'",
+
+                DatabaseType.MsSql =>
+                    "SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE = 'BASE TABLE'",
+
+                _ => throw new NotSupportedException($"Database type {_connection.DatabaseType} is not supported")
+            };
+        }
+        private string GetColumnSchemaQuery(string tableName)
+        {
+            return _connection.DatabaseType switch
+            {
+                DatabaseType.MySql =>
+                    $"SELECT COLUMN_NAME, DATA_TYPE, IS_NULLABLE FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = '{_connection.DatabaseName}' AND TABLE_NAME = '{tableName}'",
+
+                DatabaseType.PostgreSql =>
+                    $"SELECT column_name as COLUMN_NAME, data_type as DATA_TYPE, is_nullable as IS_NULLABLE FROM information_schema.columns WHERE table_schema = 'public' AND table_name = '{tableName}'",
+
+                DatabaseType.MsSql =>
+                    $"SELECT COLUMN_NAME, DATA_TYPE, IS_NULLABLE FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = '{tableName}'",
+
+                _ => throw new NotSupportedException($"Database type {_connection.DatabaseType} is not supported")
+            };
+        }
+
+        private async Task<HashSet<string>> GetPrimaryKeyColumnsAsync(DbConnection connection, string tableName)
+        {
+            var primaryKeys = new HashSet<string>();
+
+            string query = _connection.DatabaseType switch
+            {
+                DatabaseType.MySql =>
+                    $"SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.KEY_COLUMN_USAGE WHERE TABLE_SCHEMA = '{_connection.DatabaseName}' AND TABLE_NAME = '{tableName}' AND CONSTRAINT_NAME = 'PRIMARY'",
+
+                DatabaseType.PostgreSql =>
+                    $@"SELECT a.attname as COLUMN_NAME
+                       FROM pg_index i
+                       JOIN pg_attribute a ON a.attrelid = i.indrelid AND a.attnum = ANY(i.indkey)
+                       WHERE i.indrelid = '{tableName}'::regclass AND i.indisprimary",
+
+                DatabaseType.MsSql =>
+                    $@"SELECT c.name as COLUMN_NAME
+                       FROM sys.indexes i
+                       INNER JOIN sys.index_columns ic ON i.object_id = ic.object_id AND i.index_id = ic.index_id
+                       INNER JOIN sys.columns c ON ic.object_id = c.object_id AND ic.column_id = c.column_id
+                       INNER JOIN sys.tables t ON i.object_id = t.object_id
+                       WHERE i.is_primary_key = 1 AND t.name = '{tableName}'",
+
+                _ => throw new NotSupportedException($"Database type {_connection.DatabaseType} is not supported")
+            };
+
+            using var command = connection.CreateCommand();
+            command.CommandText = query;
+
+            using var reader = await command.ExecuteReaderAsync();
+            while (await reader.ReadAsync())
+            {
+                primaryKeys.Add(reader.GetString(0));
+            }
+
+            return primaryKeys;
+        }
+        public async Task TestConnectionAsync()
+        {
+            using var connection = CreateConnection();
+            await connection.OpenAsync();
+            // If we get here, the connection is successful
+        }
+
+        private DbConnection CreateConnection()
+        {
+            return _connection.DatabaseType switch
+            {
+                DatabaseType.MySql => new MySqlConnection(_connection.GetConnectionString()),
+                DatabaseType.PostgreSql => new NpgsqlConnection(_connection.GetConnectionString()),
+                DatabaseType.MsSql => new SqlConnection(_connection.GetConnectionString()),
+                _ => throw new NotSupportedException($"Database type {_connection.DatabaseType} is not supported")
+            };
+        }
+        public async Task<TableSchema> GetTableSchemaAsync1(string tableName)
         {
             try
             {
@@ -67,7 +194,7 @@ namespace Ship.Ses.Extractor.Infrastructure.Services
             }
         }
 
-        public async Task TestConnectionAsync()
+        public async Task TestConnectionAsync1()
         {
             try
             {
@@ -81,7 +208,7 @@ namespace Ship.Ses.Extractor.Infrastructure.Services
                 throw;
             }
         }
-
+        
         private async Task<List<string>> GetTableNamesForConnectionType(DbConnection connection)
         {
             var tables = new List<string>();
@@ -127,7 +254,25 @@ namespace Ship.Ses.Extractor.Infrastructure.Services
 
             return tables;
         }
+        public async Task<IEnumerable<string>> GetTableNamesAsync1()
+        {
+            var tables = new List<string>();
 
+            try
+            {
+                using var connection = _dbContextFactory.CreateConnection();
+                await connection.OpenAsync();
+
+                tables = await GetTableNamesForConnectionType(connection);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error retrieving database tables");
+                throw;
+            }
+
+            return tables;
+        }
         private async Task<List<ColumnSchema>> GetColumnsForTable(DbConnection connection, string tableName)
         {
             var columns = new List<ColumnSchema>();

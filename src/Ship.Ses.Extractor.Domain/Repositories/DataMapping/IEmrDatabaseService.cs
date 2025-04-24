@@ -16,5 +16,6 @@ namespace Ship.Ses.Extractor.Domain.Repositories.DataMapping
         Task<TableSchema> GetTableSchemaAsync(string tableName);
         Task<IEnumerable<TableSchema>> GetAllTablesSchemaAsync();
         Task TestConnectionAsync();
+        Task SelectConnectionAsync(int connectionId);
     }
 }

@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Ship.Ses.Extractor.Domain.Models.Extractor
 {
-    [Table("ses_datasource")]
+    [Table("ses_datasources")]
     public class DataSource
     {
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
@@ -19,6 +19,7 @@ namespace Ship.Ses.Extractor.Domain.Models.Extractor
         public string Name { get; set; }
         [Column("connectionstring")]
         public string ConnectionString { get; set; }
+        public string DbType { get; set; }
         public string TableName { get; set; }
         public string ResourceType { get; set; } // e.g., "Patient", "Encounter"
         public bool IsActive { get; set; }

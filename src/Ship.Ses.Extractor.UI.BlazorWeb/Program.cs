@@ -14,7 +14,8 @@ builder.RootComponents.Add<App>("#app");
 builder.RootComponents.Add<HeadOutlet>("head::after");
 
 // Base address for the Web API
-var apiBaseAddress = builder.Configuration["ApiBaseUrl"] ?? builder.HostEnvironment.BaseAddress; // This line now works because WebAssemblyHostBuilder has HostEnvironment
+var apiBaseAddress = builder.Configuration["ApiSettings:ApiBaseUrl"] ?? builder.HostEnvironment.BaseAddress; // This line now works because WebAssemblyHostBuilder has HostEnvironment
+//var apiBaseAddress = builder.Configuration["ApiSettings:BaseUrl"];
 Console.WriteLine($"Using API base address: {apiBaseAddress}");
 
 // Register HttpClient

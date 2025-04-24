@@ -10,6 +10,9 @@ using Ship.Ses.Extractor.Application.Interfaces;
 using Ship.Ses.Extractor.Application.Services.DataMapping;
 using Ship.Ses.Extractor.Domain.Repositories.DataMapping;
 using Ship.Ses.Extractor.Infrastructure.Installers;
+using Ship.Ses.Extractor.Infrastructure.Persistance.Repositories;
+using Ship.Ses.Extractor.Domain.Entities.DataMapping;
+using Ship.Ses.Extractor.Infrastructure.Services;
 
 try
 {
@@ -23,6 +26,30 @@ try
         .CreateLogger();
 
     builder.Host.UseSerilog();
+
+    // Read CORS settings from configuration
+    builder.Services.AddCors(options =>
+    {
+        options.AddPolicy("AllowBlazorClient", policy =>
+        {
+            if (builder.Environment.IsDevelopment())
+            {
+                policy.AllowAnyOrigin()
+                      .AllowAnyMethod()
+                      .AllowAnyHeader();
+            }
+            else
+            {
+                var corsOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>()
+                                  ?? Array.Empty<string>();
+
+                policy.WithOrigins(corsOrigins)
+                      .AllowAnyMethod()
+                      .AllowAnyHeader()
+                      .AllowCredentials();
+            }
+        });
+    });
 
     // Add services to the container
     builder.Services.AddControllers();
@@ -46,9 +73,14 @@ try
 
     // Add application services
     builder.Services.AddScoped<IEmrDatabaseService, EmrDatabaseService>();
+    builder.Services.AddScoped<Func<EmrConnection, IEmrDatabaseReader>>(serviceProvider => connection =>
+    {
+        return new EmrDatabaseReader(connection);
+    });
     builder.Services.AddScoped<IFhirResourceService, FhirResourceService>();
     builder.Services.AddScoped<IMappingService, MappingService>();
-
+    builder.Services.AddScoped<IMappingRepository, MappingRepository>();
+    builder.Services.AddScoped<IEmrConnectionRepository, EmrConnectionRepository>();
     // Add infrastructure services
     builder.Services.AddInfrastructure(builder.Configuration);
     var app = builder.Build();
