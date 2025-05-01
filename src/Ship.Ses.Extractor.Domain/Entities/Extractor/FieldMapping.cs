@@ -20,5 +20,19 @@ namespace Ship.Ses.Extractor.Domain.Models.Extractor
         public string? Format { get; set; }   // e.g., "yyyy-MM-dd"
         [JsonPropertyName("default")]
         public string? Default { get; set; }
+        [JsonPropertyName("required")]
+        public bool Required { get; set; } = false; // Default to false if not explicitly set
+        [JsonPropertyName("template")]
+        public string? Template { get; set; }
+
+        [JsonPropertyName("emrFieldMap")]
+        public Dictionary<string, string>? EmrFieldMap { get; set; }
+
+        [JsonPropertyName("defaults")]
+        public Dictionary<string, object>? Defaults { get; set; }
+
+        [JsonPropertyName("valueSet")]
+        public Dictionary<string, object>? ValueSet { get; set; }
+
     }
 }

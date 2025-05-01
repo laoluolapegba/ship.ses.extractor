@@ -75,10 +75,45 @@ namespace Ship.Ses.Extractor.Infrastructure.Configuration
 
             foreach (var field in mapping.Fields)
             {
-                if (string.IsNullOrWhiteSpace(field.EmrField) && !mapping.Constants.ContainsKey(field.FhirPath))
+                if (string.IsNullOrWhiteSpace(field.FhirPath))
+                    throw new InvalidOperationException($"A field in '{fileName}' has an empty 'fhirPath'");
+
+                // ✅ Skip further checks for template-based fields
+                if (!string.IsNullOrWhiteSpace(field.Template))
+                    continue;
+
+                var isEmptyStringMarker = field.EmrField?.Trim() == "__empty__";
+                var isConstant = mapping.Constants.ContainsKey(field.FhirPath);
+
+                if (string.IsNullOrWhiteSpace(field.EmrField) && !isConstant && !isEmptyStringMarker)
                 {
-                    throw new InvalidOperationException($"A field in '{fileName}' has an empty 'emrField' and is not defined in constants.");
+                    throw new InvalidOperationException(
+                        $"❌ The mapping for FHIR path '{field.FhirPath}' in '{fileName}' has no 'emrField', is not a constant, and is not marked for empty string.");
                 }
+            }
+        }
+        private void ValidateMappingold(TableMapping mapping, string fileName)
+        {
+            if (string.IsNullOrWhiteSpace(mapping.ResourceType))
+                throw new InvalidOperationException($"Missing 'resourceType' in mapping file: {fileName}");
+
+            if (string.IsNullOrWhiteSpace(mapping.TableName))
+                throw new InvalidOperationException($"Missing 'tableName' in mapping file: {fileName}");
+
+            if (mapping.Fields == null || mapping.Fields.Count == 0)
+                throw new InvalidOperationException($"Mapping file '{fileName}' must contain at least one field mapping");
+
+            foreach (var field in mapping.Fields)
+            {
+                var isEmptyStringMarker = field.EmrField?.Trim() == "__empty__";
+                var isConstant = mapping.Constants.ContainsKey(field.FhirPath);
+
+                if (string.IsNullOrWhiteSpace(field.EmrField) && !isConstant && !isEmptyStringMarker)
+                {
+                    throw new InvalidOperationException(
+                        $"❌ The mapping for FHIR path '{field.FhirPath}' in '{fileName}' has no 'emrField', is not a constant, and is not marked for empty string.");
+                }
+                
 
                 if (string.IsNullOrWhiteSpace(field.FhirPath))
                     throw new InvalidOperationException($"A field in '{fileName}' has an empty 'fhirPath'");

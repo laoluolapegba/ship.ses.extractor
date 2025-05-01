@@ -12,7 +12,7 @@ namespace Ship.Ses.Extractor.Application.Services.Validators
     {
         public Task<bool> IsValidAsync(JsonObject fhirResource, CancellationToken cancellationToken = default)
         {
-            return Task.FromResult(true); // Stub: always valid
+            return Task.FromResult(true); // Stub: always valid 
         }
     }
 

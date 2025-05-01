@@ -26,7 +26,7 @@ namespace Ship.Ses.Extractor.Infrastructure.Extraction
         public async Task<IEnumerable<IDictionary<string, object>>> ExtractAsync(TableMapping mapping, CancellationToken cancellationToken = default)
         {
             var results = new List<IDictionary<string, object>>();
-            var sql = $"SELECT * FROM {mapping.TableName}";
+            var sql = $"SELECT * FROM {mapping.TableName} where extracted_flag='N'";
 
             try
             {

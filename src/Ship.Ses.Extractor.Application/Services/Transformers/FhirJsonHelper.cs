@@ -17,51 +17,61 @@ namespace Ship.Ses.Extractor.Application.Services.Transformers
                 SetFhirValue(root, kvp.Key, kvp.Value, logger);
             }
         }
-        public static void SetFhirValue(JsonNode root, string fhirPath, JsonNode value, ILogger logger = null)
+        public static void SetFhirValue(JsonNode root, string fhirPath, JsonNode value, ILogger? logger = null)
         {
-            var parts = fhirPath
-                .Replace("]", "")
-                .Split(new[] { '[', '.' }, StringSplitOptions.RemoveEmptyEntries);
-
+            var parts = fhirPath.Replace("]", "").Split(new[] { '[', '.' }, StringSplitOptions.RemoveEmptyEntries);
             JsonNode current = root;
+            var pathTrace = new List<string>();
+
             for (int i = 0; i < parts.Length; i++)
             {
-                var isLast = i == parts.Length - 1;
-                var part = parts[i];
+                string part = parts[i];
+                bool isLast = i == parts.Length - 1;
+                string? nextPart = i + 1 < parts.Length ? parts[i + 1] : null;
+                pathTrace.Add(part);
 
-                if (int.TryParse(part, out var index))
+                if (int.TryParse(part, out int index)) // array index
                 {
-                    if (current is JsonArray array)
+                    if (current is not JsonArray array)
                     {
-                        while (array.Count <= index)
-                            array.Add(new JsonObject());
+                        logger?.LogError("❌ Failed at '{Path}': Expected JsonArray, but found {Type}.", string.Join(".", pathTrace), current.GetType().Name);
+                        throw new InvalidOperationException($"Expected array at '{string.Join(".", pathTrace)}' but found {current?.GetType().Name ?? "null"}");
+                    }
 
-                        if (isLast)
-                        {
-                            array[index] = value;
-                            logger?.LogInformation("📌 Applied constant to {FhirPath}", fhirPath);
-                        }
-                        else
-                            current = array[index];
-                    }
-                    else
+                    while (array.Count <= index)
+                        array.Add(new JsonObject());
+
+                    if (isLast)
                     {
-                        throw new InvalidOperationException("Expected array in path.");
+                        array[index] = value;
+                        logger?.LogInformation("📌 Applied constant to {FhirPath}", fhirPath);
+                        return;
                     }
+
+                    current = array[index] ??= new JsonObject();
                 }
-                else
+                else // object key
                 {
+                    if (isLast)
+                    {
+                        var clonedValue = value.DeepClone();
+                        current[part] = clonedValue;
+                        logger?.LogInformation("📌 Applied constant to {FhirPath}", fhirPath);
+                        return;
+                    }
+
+                    // Determine what structure to create
                     if (current[part] == null)
                     {
-                        current[part] = isLast ? value : new JsonObject();
+                        current[part] = int.TryParse(nextPart, out _) ? new JsonArray() : new JsonObject();
                     }
-                    else if (isLast)
+                    else if (int.TryParse(nextPart, out _) && current[part] is not JsonArray)
                     {
-                        current[part] = value;
-                        logger?.LogInformation("📌 Applied constant to {FhirPath}", fhirPath);
+                        logger?.LogError("❌ Expected JsonArray at '{Path}', but got {Type}.", string.Join(".", pathTrace), current[part]?.GetType().Name ?? "null");
+                        throw new InvalidOperationException($"Expected JsonArray at '{string.Join(".", pathTrace)}', but got {current[part]?.GetType().Name}");
                     }
 
-                    current = current[part];
+                    current = current[part]!;
                 }
             }
         }

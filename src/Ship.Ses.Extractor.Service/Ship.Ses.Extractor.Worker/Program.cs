@@ -6,7 +6,9 @@ using Microsoft.EntityFrameworkCore;
 using Ship.Ses.Extractor.Infrastructure.Settings;
 
 using Ship.Ses.Extractor.Worker.Extensions;
-using Serilog; // Fix for CS1061: Ensure the correct namespace for EF Core is included.
+using Serilog;
+using Ship.Ses.Extractor.Application.Services.Transformers;
+using Ship.Ses.Extractor.Domain.Repositories.Transformer; // Fix for CS1061: Ensure the correct namespace for EF Core is included.
 
 
 Log.Logger = new LoggerConfiguration()
@@ -26,6 +28,11 @@ try
         ?? throw new Exception("AppSettings section not found.");
 
     builder.Services.Configure<AppSettings>(builder.Configuration.GetSection(nameof(AppSettings)));
+    //builder.Services.Configure<EnvironmentDefaults>(builder.Configuration.GetSection("EnvironmentDefaults"));
+    var envDefaults = builder.Configuration.GetSection("EnvironmentDefaults").Get<EnvironmentDefaults>();
+    builder.Services.AddSingleton(envDefaults);
+   
+
     // Register DbContext
     builder.Services.AddDbContext<ExtractorDbContext>(options =>
     {
@@ -37,10 +44,12 @@ try
 
     // Hosted Service (Runner)
     builder.Services.AddHostedService<PatientExtractorWorker>();
+    TemplateBuilders.ConfigureDefaults(envDefaults);
+    Log.Information($"environment defaults: {envDefaults.ManagingOrganization}");
 
     builder.Build().Run();
-
-        Log.Information("Ship Extractor Worker stopped cleanly.");
+    TemplateBuilders.ConfigureDefaults(envDefaults);
+    Log.Information("Ship Extractor Worker stopped cleanly.");
 }
 catch (Exception ex)
 {
