@@ -9,7 +9,7 @@ namespace Ship.Ses.Extractor.Domain.Repositories.Transformer
 {
     public interface IResourceTransformer<T>
     {
-        T Transform(IDictionary<string, object> row, TableMapping mapping);
+        T Transform(IDictionary<string, object> row, TableMapping mapping, List<string> errors);
     }
 
 }

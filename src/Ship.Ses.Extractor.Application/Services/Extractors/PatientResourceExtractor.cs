@@ -51,7 +51,7 @@ namespace Ship.Ses.Extractor.Application.Services.Extractors
         public async Task ExtractAndPersistAsync(CancellationToken cancellationToken = default)
         {
             var correlationId = Guid.NewGuid().ToString();
-            using (LogContext.PushProperty("CorrelationId", correlationId)) 
+            using (LogContext.PushProperty("CorrelationId", correlationId))
             {
                 _logger.LogInformation("Started extraction with CorrelationId {CorrelationId}", correlationId);
 
@@ -63,35 +63,57 @@ namespace Ship.Ses.Extractor.Application.Services.Extractors
 
                 foreach (var row in rawRows)
                 {
+                    var sourceId = row["patient_id"]?.ToString();
+                    var lastUpdated = row.TryGetValue("created_at", out var u) ? DateTime.Parse(u?.ToString()!) : (DateTime?)null;
+                    var rowHash = ComputeRowHash(row);
+
+                    if (string.IsNullOrWhiteSpace(sourceId))
+                    {
+                        _logger.LogWarning("Skipping row with null or empty ID");
+                        continue;
+                    }
+
+                    if (await _syncTrackingRepository.ExistsAsync("Patient", sourceId, cancellationToken))
+                    {
+                        _logger.LogInformation("Skipping already tracked record {SourceId}", sourceId);
+                        continue;
+                    }
+
+                    var tracking = new SyncTracking
+                    {
+                        ResourceType = "Patient",
+                        SourceId = sourceId,
+                        SourceHash = rowHash,
+                        LastUpdated = lastUpdated,
+                        CreatedAt = DateTime.UtcNow,
+                        RetryCount = 0
+                    };
+
                     try
                     {
-                        // Extract source keys
-                        var sourceId = row["patient_id"]?.ToString();
-                        var lastUpdated = row.TryGetValue("created_at", out var u) ? DateTime.Parse(u?.ToString()!) : (DateTime?)null;
-                        var rowHash = ComputeRowHash(row);
+                        var errors = new List<string>();
+                        var json = _transformer.Transform(row, mapping, errors);
 
-                        if (string.IsNullOrWhiteSpace(sourceId))
+                        if (errors.Any())
                         {
-                            _logger.LogWarning("Skipping row with null or empty ID");
-                            continue;
+                            var errorMessage = string.Join("; ", errors);
+                            _logger.LogWarning("Skipping record {SourceId} due to missing required fields: {Errors}", sourceId, errorMessage);
+
+                            await _syncTrackingRepository.AddOrUpdateAsync(new SyncTracking
+                            {
+                                ResourceType = "Patient",
+                                SourceId = sourceId,
+                                SourceHash = rowHash,
+                                LastUpdated = lastUpdated,
+                                ExtractStatus = "Failed",
+                                RetryCount = 0,
+                                ErrorMessage = errorMessage,
+                                CreatedAt = DateTime.UtcNow,
+                                LastAttemptAt = DateTime.UtcNow
+                            }, cancellationToken);
+
+                            continue; // Skip persistence
                         }
-
-                        // Check if already synced
-                        if (await _syncTrackingRepository.ExistsAsync("Patient", sourceId, cancellationToken))
-                        {
-                            _logger.LogInformation("Skipping already tracked record {SourceId}", sourceId);
-                            continue;
-                        }
-
-                        var json = _transformer.Transform(row, mapping);
-                        var options = new JsonSerializerOptions
-                        {
-                            WriteIndented = true
-                        };
-
-                        string formattedJson = JsonSerializer.Serialize(json, options);
-
-                        _logger.LogInformation("Transformed FHIR JSON:\n{FormattedJson}", formattedJson);
 
                         var record = new PatientSyncRecord
                         {
@@ -102,22 +124,13 @@ namespace Ship.Ses.Extractor.Application.Services.Extractors
                             RetryCount = 0
                         };
 
-                        var tracking = new SyncTracking
-                        {
-                            ResourceType = "Patient",
-                            SourceId = sourceId,
-                            SourceHash = rowHash,
-                            LastUpdated = lastUpdated,
-                            ExtractStatus = "Pending",
-                            RetryCount = 0,
-                            CreatedAt = DateTime.UtcNow
-                        };
+                        string formattedJson = JsonSerializer.Serialize(json, new JsonSerializerOptions { WriteIndented = true });
+                        _logger.LogInformation("Transformed FHIR JSON:\n{FormattedJson}", formattedJson);
 
                         if (await _validator.IsValidAsync(json, cancellationToken))
                         {
                             await _repository.InsertAsync(record, cancellationToken);
                             tracking.ExtractStatus = "Success";
-
                             _logger.LogInformation("Successfully persisted record {SourceId}", sourceId);
                         }
                         else
@@ -125,7 +138,7 @@ namespace Ship.Ses.Extractor.Application.Services.Extractors
                             record.Status = "Failed";
                             record.ErrorMessage = "Validation failed";
                             tracking.ExtractStatus = "Failed";
-                            tracking.ErrorMessage = record.ErrorMessage;
+                            tracking.ErrorMessage = "Validation failed";
 
                             await _repository.InsertAsync(record, cancellationToken);
                             _logger.LogWarning("Validation failed for record {SourceId}", sourceId);
@@ -135,7 +148,6 @@ namespace Ship.Ses.Extractor.Application.Services.Extractors
                     }
                     catch (Exception ex)
                     {
-                        var sourceId = row["patient_id"]?.ToString() ?? "<unknown>";
                         _logger.LogError(ex, "Unhandled error processing record {SourceId}", sourceId);
 
                         await _syncTrackingRepository.AddOrUpdateAsync(new SyncTracking

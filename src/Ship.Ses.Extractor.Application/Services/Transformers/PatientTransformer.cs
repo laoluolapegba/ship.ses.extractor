@@ -19,7 +19,7 @@ namespace Ship.Ses.Extractor.Application.Services.Transformers
             _logger = logger;
         }
 
-        public JsonObject Transform(IDictionary<string, object> row, TableMapping mapping)
+        public JsonObject Transform(IDictionary<string, object> row, TableMapping mapping, List<string> errors)
         {
             var fhir = new JsonObject
             {
@@ -67,7 +67,8 @@ namespace Ship.Ses.Extractor.Application.Services.Transformers
                 {
                     value = string.Empty;
                 }
-                else if (!string.IsNullOrWhiteSpace(field.EmrField) && row.TryGetValue(field.EmrField, out var rawVal))
+                else if (!string.IsNullOrWhiteSpace(field.EmrField) &&
+                         row.TryGetValue(field.EmrField, out var rawVal))
                 {
                     value = rawVal;
                 }
@@ -76,13 +77,11 @@ namespace Ship.Ses.Extractor.Application.Services.Transformers
                 {
                     if (field.Required)
                     {
-                        _logger.LogWarning("⚠️ Required field '{FhirPath}' missing from EMR row. Inserting empty string.", field.FhirPath);
-                        value = string.Empty;
+                        _logger.LogWarning("⚠️ Required field '{FhirPath}' missing from EMR row. Skipping persistence.", field.FhirPath);
+                        errors.Add($"Missing required field: {field.FhirPath} (EMR: {field.EmrField})");
                     }
-                    else
-                    {
-                        continue; // Optional field missing - skip
-                    }
+
+                    continue; // Skip this field either way
                 }
 
                 value = ConvertField(value, field.DataType, field.Format);
@@ -91,6 +90,7 @@ namespace Ship.Ses.Extractor.Application.Services.Transformers
 
             return fhir;
         }
+
 
         private object ConvertField(object value, string? type, string? format)
         {

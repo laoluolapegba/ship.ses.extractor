@@ -5,15 +5,18 @@
         {
             "fhirPath": "id",
             "emrField": "patient_id",
-            "dataType": "string"
+            "dataType": "string",
+            "required": true
         },
         {
             "fhirPath": "active",
             "emrField": "inactive",
-            "dataType": "bool"
+            "dataType": "bool",
+            "required": true
         },
         {
             "fhirPath": "maritalStatus",
+            "required": true,
             "template": "codeableConcept",
             "emrField": "marital_status",
             "valueSet": {
@@ -28,6 +31,7 @@
         },
         {
             "fhirPath": "name[0]",
+            "required": true,
             "template": "humanName",
             "emrFieldMap": {
                 "given": "forename",
@@ -41,16 +45,19 @@
         {
             "fhirPath": "gender",
             "emrField": "gender",
-            "dataType": "string"
+            "dataType": "string",
+            "required": true
         },
         {
             "fhirPath": "birthDate",
             "emrField": "dob",
             "dataType": "date",
-            "format": "yyyy-MM-dd"
+            "format": "yyyy-MM-dd",
+            "required": true
         },
         {
             "fhirPath": "telecom[0]",
+            "required": true,
             "template": "contactPoint",
             "emrFieldMap": {
                 "value": "phone"
@@ -73,6 +80,7 @@
         },
         {
             "fhirPath": "address[0]",
+            "required": true,
             "template": "address",
             "emrFieldMap": {
                 "line[0]": "address",
@@ -87,6 +95,7 @@
         },
         {
             "fhirPath": "contact[0]",
+            "required": true,
             "template": "contact",
             "emrFieldMap": {
                 "name": "nok_full_name",
@@ -131,6 +140,7 @@
         {
             "fhirPath": "identifier[0]",
             "template": "identifier",
+            "required": true,
             "emrFieldMap": {
                 "value": "nin"
             },
@@ -151,6 +161,7 @@
         },
         {
             "fhirPath": "managingOrganization",
+            "required": true,
             "template": "reference",
             "source": "environment"
         }
