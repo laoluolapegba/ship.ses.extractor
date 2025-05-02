@@ -1,7 +1,7 @@
 # SHIP Edge Server (SeS) - Data Extraction Component
 🚀 **ship.ses.extractor**  
 
-![Deploy Status](https://github.com/olaoluwa/ship-extractor/actions/workflows/deployuat.yml/badge.svg)
+![Deploy Status](https://github.com/laoluolapegba/ship.ses.extractor/actions/workflows/deployuat.yml/badge.svg)
 
 ## Overview
 The **SHIP Edge Server (SeS) - Data Extraction Component** (**`ship.ses.extractor`**) is responsible for extracting healthcare data from **various EMR systems** and preparing it for transformation and synchronization with the **SHIP Core Platform**.
