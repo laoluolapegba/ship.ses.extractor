@@ -1,0 +1,54 @@
+name: Build & Push SHIP Extractor
+
+on:
+  push:
+    branches:
+      - main  # or staging/uat
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      IMAGE_NAME: ship-extractor
+      DOCKER_CONTEXT: docker-context
+
+    steps:
+      - name: ⬇️ Checkout repo
+        uses: actions/checkout@v3
+
+      - name: 🧱 Set up .NET SDK
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: 📦 Publish Worker
+        run: dotnet publish ./src/Ship.Ses.Extractor.Worker -c Release -o ./publish
+
+      - name: 🧪 Get Git Commit Hash
+        id: vars
+        run: echo "hash=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+
+      - name: 🛠️ Inject commit hash into appsettings.Production.json
+        run: |
+          sed -i "s/\"commitHash\": \".*\"/\"commitHash\": \"${{ steps.vars.outputs.hash }}\"/" $DOCKER_CONTEXT/appsettings.Production.json
+
+      - name: 📦 Prepare Docker context
+        run: |
+          mkdir -p $DOCKER_CONTEXT/publish
+          cp -r ./publish/* $DOCKER_CONTEXT/publish/
+
+      - name: 🐳 Build Docker image
+        run: docker build -t $IMAGE_NAME:uat $DOCKER_CONTEXT
+        
+      - name: 🔐 Log in to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: 🐳 Tag Docker image
+        run: docker tag ship-extractor:uat ${{ secrets.DOCKERHUB_USERNAME }}/ship-extractor:uat
+
+      - name: 📤 Push image to Docker Hub
+        run: docker push ${{ secrets.DOCKERHUB_USERNAME }}/ship-extractor:uat
+
