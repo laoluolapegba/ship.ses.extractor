@@ -16,8 +16,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\Ship.Ses.Extractor.Application\Ship.Ses.Extractor.Application.csproj" />
-    <ProjectReference Include="..\..\Ship.Ses.Extractor.Infrastructure\Ship.Ses.Extractor.Infrastructure.csproj" />
+    <ProjectReference Include="..\Ship.Ses.Extractor.Application\Ship.Ses.Extractor.Application.csproj" />
+    <ProjectReference Include="..\Ship.Ses.Extractor.Infrastructure\Ship.Ses.Extractor.Infrastructure.csproj" />
   </ItemGroup>
   <ItemGroup>
     <None Update="Configs\**\*.json">
