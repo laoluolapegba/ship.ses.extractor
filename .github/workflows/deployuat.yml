@@ -37,10 +37,13 @@ jobs:
           cp -r ./publish/* $DOCKER_CONTEXT/publish/
           cp ./src/Ship.Ses.Extractor.Worker/appsettings.Production.json $DOCKER_CONTEXT/
           cp ./src/Ship.Ses.Extractor.Worker/Dockerfile $DOCKER_CONTEXT/
-
-
+      - name: 📂 List Docker Context Contents
+        run: ls -R $DOCKER_CONTEXT
+      - name: 🔎 Check Docker context is a directory
+        run: test -d $DOCKER_CONTEXT && echo "✅ Context is a directory" || echo "❌ Not a directory"
+  
       - name: 🐳 Build Docker image
-        run: docker build -t ship-extractor:uat -f ./docker-context/Dockerfile ./docker-context
+        run: docker build -t ship-extractor:uat -f docker-context/Dockerfile docker-context
         
       - name: 🔐 Log in to Docker Hub
         uses: docker/login-action@v2
