@@ -37,7 +37,7 @@ jobs:
           cp -r ./publish/* $DOCKER_CONTEXT/publish/
 
       - name: 🐳 Build Docker image
-        run: docker build -t $IMAGE_NAME:uat $DOCKER_CONTEXT
+        run: docker build -t $IMAGE_NAME:uat -f $DOCKER_CONTEXT/Dockerfile .
         
       - name: 🔐 Log in to Docker Hub
         uses: docker/login-action@v2
