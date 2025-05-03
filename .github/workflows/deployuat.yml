@@ -35,6 +35,9 @@ jobs:
         run: |
           mkdir -p $DOCKER_CONTEXT/publish
           cp -r ./publish/* $DOCKER_CONTEXT/publish/
+          cp ./src/Ship.Ses.Extractor.Worker/appsettings.Production.json $DOCKER_CONTEXT/
+          cp ./src/Ship.Ses.Extractor.Worker/Dockerfile $DOCKER_CONTEXT/
+
 
       - name: 🐳 Build Docker image
         run: docker build -t $IMAGE_NAME:uat -f $DOCKER_CONTEXT/Dockerfile .
