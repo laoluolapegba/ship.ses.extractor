@@ -22,8 +22,7 @@ jobs:
           dotnet-version: '9.0.100'
 
       - name: 📦 Publish Worker
-        run: dotnet publish ./src/Ship.Ses.Extractor.Worker -c Release -o ./publish
-
+        run: dotnet publish ./src/Ship.Ses.Extractor.Worker/Ship.Ses.Extractor.Worker.csproj -c Release -o ./publish
       - name: 🧪 Get Git Commit Hash
         id: vars
         run: echo "hash=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
