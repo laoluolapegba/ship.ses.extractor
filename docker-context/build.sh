@@ -27,7 +27,8 @@ cp ./src/Ship.Ses.Extractor.Worker/Dockerfile $DOCKER_CONTEXT/
 
 # 🐳 Build Docker image
 echo "🐳 Building Docker image..."
-docker build -t $IMAGE_NAME:uat -f $DOCKER_CONTEXT/Dockerfile $DOCKER_CONTEXT
+#docker build -t $IMAGE_NAME:uat -f $DOCKER_CONTEXT/Dockerfile $DOCKER_CONTEXT
+docker build -f $DOCKER_CONTEXT/Dockerfile -t $IMAGE_NAME:uat .
 
 # 🔐 Docker login (make sure you're logged in already)
 if ! docker info | grep -q Username; then

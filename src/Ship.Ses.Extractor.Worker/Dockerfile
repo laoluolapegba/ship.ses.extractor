@@ -3,7 +3,7 @@ FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
 WORKDIR /src
 
 # Copy csproj files
-COPY ["src/Ship.Ses.Extractor.Service/Ship.Ses.Extractor.Worker/Ship.Ses.Extractor.Worker.csproj", "src/Ship.Ses.Extractor.Service/Ship.Ses.Extractor.Worker/"]
+COPY ["src/Ship.Ses.Extractor.Worker/Ship.Ses.Extractor.Worker.csproj", "src/Ship.Ses.Extractor.Worker/"]
 COPY ["src/Ship.Ses.Extractor.Application/Ship.Ses.Extractor.Application.csproj", "src/Ship.Ses.Extractor.Application/"]
 COPY ["src/Ship.Ses.Extractor.Domain/Ship.Ses.Extractor.Domain.csproj", "src/Ship.Ses.Extractor.Domain/"]
 COPY ["src/Ship.Ses.Extractor.Infrastructure/Ship.Ses.Extractor.Infrastructure.csproj", "src/Ship.Ses.Extractor.Infrastructure/"]
@@ -13,8 +13,8 @@ RUN dotnet restore "src/Ship.Ses.Extractor.Worker/Ship.Ses.Extractor.Worker.cspr
 
 # Copy everything and build
 COPY . .
-WORKDIR "/src/src/Ship.Ses.Extractor.Service/Ship.Ses.Extractor.Worker"
-RUN dotnet publish "Ship.Ses.Extractor.Worker.csproj" -c Release -o /app/publish /p:UseAppHost=false
+WORKDIR "/src/src/Ship.Ses.Extractor.Worker"
+RUN dotnet publish "Ship.Ses.Extractor.Worker.csproj" -c Release -o /app/publish
 
 # ---------- RUNTIME STAGE ----------
 FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS runtime
