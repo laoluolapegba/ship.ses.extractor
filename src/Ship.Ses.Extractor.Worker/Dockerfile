@@ -9,7 +9,7 @@ COPY ["src/Ship.Ses.Extractor.Domain/Ship.Ses.Extractor.Domain.csproj", "src/Shi
 COPY ["src/Ship.Ses.Extractor.Infrastructure/Ship.Ses.Extractor.Infrastructure.csproj", "src/Ship.Ses.Extractor.Infrastructure/"]
 
 # Restore dependencies
-RUN dotnet restore "src/Ship.Ses.Extractor.Service/Ship.Ses.Extractor.Worker/Ship.Ses.Extractor.Worker.csproj"
+RUN dotnet restore "src/Ship.Ses.Extractor.Worker/Ship.Ses.Extractor.Worker.csproj"
 
 # Copy everything and build
 COPY . .
