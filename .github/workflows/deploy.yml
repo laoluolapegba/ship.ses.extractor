@@ -35,7 +35,7 @@ jobs:
 
       - name: 🐳 Build Docker image
         working-directory: ${{ env.DOCKER_CONTEXT }}
-        run: docker build -t $IMAGE_NAME:uat -f Dockerfile .
+        run: docker build -t $IMAGE_NAME:uat -f ./src/Ship.Ses.Extractor.Worker/Dockerfile ./src/Ship.Ses.Extractor.Worker
 
       - name: 🔐 Log in to Docker Hub
         uses: docker/login-action@v2
