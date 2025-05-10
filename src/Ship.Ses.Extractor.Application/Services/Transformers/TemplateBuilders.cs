@@ -233,32 +233,34 @@ namespace Ship.Ses.Extractor.Application.Services.Transformers
         public static void ApplyIdentifier(JsonObject fhir, FieldMapping field, IDictionary<string, object> row, ILogger logger)
         {
             var identifier = new JsonObject();
-            string? sourceFieldUsed = null;
+            string? selectedAlias = null;
             object? identifierValue = null;
 
-            // Try emrFieldPriority fallback list
-            if (field.EmrFieldPriority != null)
+            if (field.EmrFieldPriorityMap != null)
             {
-                foreach (var emrField in field.EmrFieldPriority)
+                foreach (var kvp in field.EmrFieldPriorityMap)
                 {
-                    if (row.TryGetValue(emrField, out var rawVal) && rawVal != null && !string.IsNullOrWhiteSpace(rawVal.ToString()))
+                    var alias = kvp.Key;
+                    var emrColumn = kvp.Value;
+
+                    if (row.TryGetValue(emrColumn, out var rawVal) && rawVal != null && !string.IsNullOrWhiteSpace(rawVal.ToString()))
                     {
                         identifierValue = rawVal;
-                        sourceFieldUsed = emrField;
+                        selectedAlias = alias;
                         break;
                     }
                 }
 
                 if (identifierValue == null)
                 {
-                    logger.LogWarning("❌ No valid identifier value found for any of the fields in emrFieldPriority: {Fields}", string.Join(", ", field.EmrFieldPriority));
+                    logger.LogWarning("❌ No valid identifier found from emrFieldPriorityMap");
                     return;
                 }
 
                 identifier["value"] = JsonValue.Create(identifierValue.ToString());
 
-                // Use identifierTypeMap to populate 'type'
-                if (field.IdentifierTypeMap != null && field.IdentifierTypeMap.TryGetValue(sourceFieldUsed!, out var typeMetadata))
+                // Use identifierTypeMap with the alias
+                if (field.IdentifierTypeMap != null && field.IdentifierTypeMap.TryGetValue(selectedAlias!, out var typeMetadata))
                 {
                     var typeObj = new JsonObject();
 
@@ -267,8 +269,7 @@ namespace Ship.Ses.Extractor.Application.Services.Transformers
                     if (typeMetadata.TryGetValue("code", out var code)) coding["code"] = JsonValue.Create(code.ToString());
                     if (typeMetadata.TryGetValue("display", out var display)) coding["display"] = JsonValue.Create(display.ToString());
 
-                    var codingArray = new JsonArray { coding };
-                    typeObj["coding"] = codingArray;
+                    typeObj["coding"] = new JsonArray { coding };
 
                     if (typeMetadata.TryGetValue("text", out var text)) typeObj["text"] = JsonValue.Create(text.ToString());
 
@@ -276,11 +277,10 @@ namespace Ship.Ses.Extractor.Application.Services.Transformers
                 }
                 else
                 {
-                    logger.LogWarning("⚠️ No matching type metadata found in identifierTypeMap for field: {Field}", sourceFieldUsed);
+                    logger.LogWarning("⚠️ No identifier type metadata for alias '{Alias}'", selectedAlias);
                 }
             }
 
-            // Apply defaults (e.g. 'use', 'system')
             if (field.Defaults != null)
             {
                 if (field.Defaults.TryGetValue("use", out var use)) identifier["use"] = JsonValue.Create(use.ToString());
@@ -289,7 +289,6 @@ namespace Ship.Ses.Extractor.Application.Services.Transformers
 
             FhirJsonHelper.SetFhirValue(fhir, field.FhirPath, identifier, logger);
         }
-
 
 
         public static void ApplyContactPoint(JsonObject fhir, FieldMapping field, IDictionary<string, object> row, ILogger logger)

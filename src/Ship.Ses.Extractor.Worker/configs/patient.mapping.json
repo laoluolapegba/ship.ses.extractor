@@ -141,12 +141,12 @@
             "fhirPath": "identifier[0]",
             "template": "identifier",
             "required": true,
-            "emrFieldPriority": [
-                "nin",
-                "bvn",
-                "passport_number",
-                "driver_license"
-            ],
+            "emrFieldPriority": {
+                "national_id": "nin",
+                "bank_id": "bvn",
+                "passport_id": "passport_number",
+                "driver_license": "driver_license"
+            },
             "identifierTypeMap": {
                 "nin": {
                     "code": "NIN",

@@ -16,14 +16,14 @@ namespace Ship.Ses.Extractor.Domain.Models.Extractor
         [JsonPropertyName("emrField")]
         public string? EmrField { get; set; }
 
-        [JsonPropertyName("emrFieldPriority")]
-        public List<string>? EmrFieldPriority { get; set; }
+        [JsonPropertyName("emrFieldMap")]
+        public Dictionary<string, string>? EmrFieldMap { get; set; }
+
+        [JsonPropertyName("emrFieldPriorityMap")]
+        public Dictionary<string, string>? EmrFieldPriorityMap { get; set; }
 
         [JsonPropertyName("identifierTypeMap")]
         public Dictionary<string, Dictionary<string, object>>? IdentifierTypeMap { get; set; }
-
-        [JsonPropertyName("emrFieldMap")]
-        public Dictionary<string, string>? EmrFieldMap { get; set; }
 
         [JsonPropertyName("template")]
         public string? Template { get; set; }
@@ -46,5 +46,6 @@ namespace Ship.Ses.Extractor.Domain.Models.Extractor
         [JsonPropertyName("required")]
         public bool Required { get; set; } = false;
     }
+
 
 }
