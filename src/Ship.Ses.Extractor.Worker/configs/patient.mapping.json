@@ -141,22 +141,40 @@
             "fhirPath": "identifier[0]",
             "template": "identifier",
             "required": true,
-            "emrFieldMap": {
-                "value": "nin"
+            "emrFieldPriority": [
+                "nin",
+                "bvn",
+                "passport_number",
+                "driver_license"
+            ],
+            "identifierTypeMap": {
+                "nin": {
+                    "code": "NIN",
+                    "display": "National Identification Number",
+                    "system": "http://terminology.hl7.org/CodeSystem/v2-0203",
+                    "text": "National Identification Number"
+                },
+                "bvn": {
+                    "code": "BVN",
+                    "display": "Bank Verification Number",
+                    "system": "http://terminology.hl7.org/CodeSystem/v2-0203",
+                    "text": "Bank Verification Number"
+                },
+                "passport_number": {
+                    "code": "PPN",
+                    "display": "Passport Number",
+                    "system": "http://terminology.hl7.org/CodeSystem/v2-0203",
+                    "text": "Passport Number"
+                },
+                "driver_license": {
+                    "code": "DL",
+                    "display": "Drivers License",
+                    "system": "http://terminology.hl7.org/CodeSystem/v2-0203",
+                    "text": "Drivers License"
+                }
             },
             "defaults": {
-                "use": "official",
-                "system": "http://hospital.smarthealth.org/patient-ids",
-                "type": {
-                    "coding": [
-                        {
-                            "system": "http://terminology.hl7.org/CodeSystem/v2-0203",
-                            "code": "NIN",
-                            "display": "National Identification Number"
-                        }
-                    ],
-                    "text": "National Identification Number"
-                }
+                "use": "official"
             }
         },
         {

@@ -10,23 +10,32 @@ namespace Ship.Ses.Extractor.Domain.Models.Extractor
 {
     public class FieldMapping
     {
-        [JsonPropertyName("emrField")]
-        public string EmrField { get; set; } = default!;
         [JsonPropertyName("fhirPath")]
         public string FhirPath { get; set; } = default!;
-        [JsonPropertyName("dataType")]
-        public string? DataType { get; set; } // "string", "date", etc.
-        [JsonPropertyName("format")]
-        public string? Format { get; set; }   // e.g., "yyyy-MM-dd"
-        [JsonPropertyName("default")]
-        public string? Default { get; set; }
-        [JsonPropertyName("required")]
-        public bool Required { get; set; } = false; // Default to false if not explicitly set
-        [JsonPropertyName("template")]
-        public string? Template { get; set; }
+
+        [JsonPropertyName("emrField")]
+        public string? EmrField { get; set; }
+
+        [JsonPropertyName("emrFieldPriority")]
+        public List<string>? EmrFieldPriority { get; set; }
+
+        [JsonPropertyName("identifierTypeMap")]
+        public Dictionary<string, Dictionary<string, object>>? IdentifierTypeMap { get; set; }
 
         [JsonPropertyName("emrFieldMap")]
         public Dictionary<string, string>? EmrFieldMap { get; set; }
+
+        [JsonPropertyName("template")]
+        public string? Template { get; set; }
+
+        [JsonPropertyName("dataType")]
+        public string? DataType { get; set; }
+
+        [JsonPropertyName("format")]
+        public string? Format { get; set; }
+
+        [JsonPropertyName("default")]
+        public string? Default { get; set; }
 
         [JsonPropertyName("defaults")]
         public Dictionary<string, object>? Defaults { get; set; }
@@ -34,5 +43,8 @@ namespace Ship.Ses.Extractor.Domain.Models.Extractor
         [JsonPropertyName("valueSet")]
         public Dictionary<string, object>? ValueSet { get; set; }
 
+        [JsonPropertyName("required")]
+        public bool Required { get; set; } = false;
     }
+
 }

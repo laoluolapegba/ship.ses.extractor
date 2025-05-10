@@ -232,36 +232,59 @@ namespace Ship.Ses.Extractor.Application.Services.Transformers
 
         public static void ApplyIdentifier(JsonObject fhir, FieldMapping field, IDictionary<string, object> row, ILogger logger)
         {
-            logger.LogInformation("🔧 Applying Identifier template to {FhirPath}", field.FhirPath);
             var identifier = new JsonObject();
+            string? sourceFieldUsed = null;
+            object? identifierValue = null;
 
-            // Extract 'value' from EMR row
-            if (field.EmrFieldMap != null &&
-                field.EmrFieldMap.TryGetValue("value", out var valueField) &&
-                row.TryGetValue(valueField, out var value) && value != null)
+            // Try emrFieldPriority fallback list
+            if (field.EmrFieldPriority != null)
             {
-                identifier["value"] = JsonValue.Create(value.ToString());
-            }
-            else
-            {
-                logger.LogWarning("⚠️ No identifier 'value' found in EMR field map for {FhirPath}", field.FhirPath);
-            }
-
-            // Handle defaults
-            if (field.Defaults != null)
-            {
-                foreach (var kvp in field.Defaults)
+                foreach (var emrField in field.EmrFieldPriority)
                 {
-                    if (kvp.Key == "type")
+                    if (row.TryGetValue(emrField, out var rawVal) && rawVal != null && !string.IsNullOrWhiteSpace(rawVal.ToString()))
                     {
-                        // Deserialize structured type object
-                        identifier["type"] = JsonSerializer.SerializeToNode(kvp.Value);
-                    }
-                    else
-                    {
-                        identifier[kvp.Key] = JsonValue.Create(kvp.Value?.ToString());
+                        identifierValue = rawVal;
+                        sourceFieldUsed = emrField;
+                        break;
                     }
                 }
+
+                if (identifierValue == null)
+                {
+                    logger.LogWarning("❌ No valid identifier value found for any of the fields in emrFieldPriority: {Fields}", string.Join(", ", field.EmrFieldPriority));
+                    return;
+                }
+
+                identifier["value"] = JsonValue.Create(identifierValue.ToString());
+
+                // Use identifierTypeMap to populate 'type'
+                if (field.IdentifierTypeMap != null && field.IdentifierTypeMap.TryGetValue(sourceFieldUsed!, out var typeMetadata))
+                {
+                    var typeObj = new JsonObject();
+
+                    var coding = new JsonObject();
+                    if (typeMetadata.TryGetValue("system", out var system)) coding["system"] = JsonValue.Create(system.ToString());
+                    if (typeMetadata.TryGetValue("code", out var code)) coding["code"] = JsonValue.Create(code.ToString());
+                    if (typeMetadata.TryGetValue("display", out var display)) coding["display"] = JsonValue.Create(display.ToString());
+
+                    var codingArray = new JsonArray { coding };
+                    typeObj["coding"] = codingArray;
+
+                    if (typeMetadata.TryGetValue("text", out var text)) typeObj["text"] = JsonValue.Create(text.ToString());
+
+                    identifier["type"] = typeObj;
+                }
+                else
+                {
+                    logger.LogWarning("⚠️ No matching type metadata found in identifierTypeMap for field: {Field}", sourceFieldUsed);
+                }
+            }
+
+            // Apply defaults (e.g. 'use', 'system')
+            if (field.Defaults != null)
+            {
+                if (field.Defaults.TryGetValue("use", out var use)) identifier["use"] = JsonValue.Create(use.ToString());
+                if (field.Defaults.TryGetValue("system", out var system)) identifier["system"] = JsonValue.Create(system.ToString());
             }
 
             FhirJsonHelper.SetFhirValue(fhir, field.FhirPath, identifier, logger);
