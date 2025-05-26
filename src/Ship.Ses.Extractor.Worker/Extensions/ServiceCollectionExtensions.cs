@@ -4,6 +4,7 @@ using Ship.Ses.Extractor.Application.Services.Validators;
 using Ship.Ses.Extractor.Domain.Repositories.Transformer;
 using Ship.Ses.Extractor.Domain.Repositories.Validator;
 using Ship.Ses.Extractor.Infrastructure.Extensions;
+using Ship.Ses.Extractor.Infrastructure.Validator;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -20,7 +21,13 @@ namespace Ship.Ses.Extractor.Worker.Extensions
             services.AddInfrastructureServices(config);
 
             // Application logic
-            services.AddSingleton<IFhirValidator, PassThroughFhirValidator>();
+
+            // Register the FhirValidator as the implementation for IFhirResourceValidator
+            services.AddScoped<IFhirResourceValidator, FirelyResourceValidator>();
+
+            // Register the FhirProcessingService (it depends on IFhirResourceValidator)
+            services.AddScoped<FhirValidatorService>();
+
             services.AddSingleton<IResourceTransformer<JsonObject>, PatientTransformer>();
             // Orchestrator
             services.AddScoped<PatientResourceExtractor>();

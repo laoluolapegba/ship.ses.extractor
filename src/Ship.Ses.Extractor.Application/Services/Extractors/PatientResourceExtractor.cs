@@ -25,7 +25,7 @@ namespace Ship.Ses.Extractor.Application.Services.Extractors
         private readonly ITableMappingService _mappingService;
         private readonly IDataExtractorService _dataExtractor;
         private readonly IResourceTransformer<JsonObject> _transformer;
-        private readonly IFhirValidator _validator;
+        private readonly IFhirResourceValidator _validator;
         private readonly IFhirSyncRepository<PatientSyncRecord> _repository;
         private readonly ISyncTrackingRepository _syncTrackingRepository;
         private readonly ILogger<PatientResourceExtractor> _logger;
@@ -34,7 +34,7 @@ namespace Ship.Ses.Extractor.Application.Services.Extractors
             ITableMappingService mappingService,
             IDataExtractorService dataExtractor,
             IResourceTransformer<JsonObject> transformer,
-            IFhirValidator validator,
+            IFhirResourceValidator validator,
             IFhirSyncRepository<PatientSyncRecord> repository,
             ISyncTrackingRepository syncTrackingRepository,
             ILogger<PatientResourceExtractor> logger)
@@ -93,6 +93,7 @@ namespace Ship.Ses.Extractor.Application.Services.Extractors
                     {
                         var errors = new List<string>();
                         var json = _transformer.Transform(row, mapping, errors);
+                        var normalizedjson = _transformer.NormalizeEnumFields(json); // Apply safe enum casing fix
 
                         if (errors.Any())
                         {
@@ -118,31 +119,50 @@ namespace Ship.Ses.Extractor.Application.Services.Extractors
                         var record = new PatientSyncRecord
                         {
                             ResourceId = sourceId,
-                            FhirJson = BsonDocument.Parse(json.ToJsonString()),
+                            FhirJson = BsonDocument.Parse(normalizedjson.ToJsonString()),
                             CreatedDate = DateTime.UtcNow,
                             Status = "Pending",
                             RetryCount = 0
                         };
 
-                        string formattedJson = JsonSerializer.Serialize(json, new JsonSerializerOptions { WriteIndented = true });
+                        string formattedJson = JsonSerializer.Serialize(normalizedjson, new JsonSerializerOptions { WriteIndented = true });
                         _logger.LogInformation("Transformed FHIR JSON:\n{FormattedJson}", formattedJson);
 
-                        if (await _validator.IsValidAsync(json, cancellationToken))
+                        var validationResult = await _validator.ValidateAsync(normalizedjson);
+                        _logger.LogInformation("Validation result for record {SourceId}: {IsValid}", sourceId, validationResult.IsValid);
+                        if (!validationResult.IsValid)
                         {
+                            _logger.LogWarning("❌ Validation failed. Errors: {Errors}", string.Join("; ", validationResult.Errors));
+
+                            var errorMessage = string.Join("; ", validationResult.Errors);
+                            _logger.LogWarning("Validation failed for record {SourceId}: {Errors}", sourceId, errorMessage);
+                            tracking.ExtractStatus = "Failed";
+                            tracking.ErrorMessage = errorMessage;
+                            await _syncTrackingRepository.AddOrUpdateAsync(tracking, cancellationToken);
+                            continue; // Skip persistence
+                        }
+                        else
+                        {
+                            _logger.LogInformation("✅ Validation succeeded for record {SourceId}", sourceId);
                             await _repository.InsertAsync(record, cancellationToken);
                             tracking.ExtractStatus = "Success";
                             _logger.LogInformation("Successfully persisted record {SourceId}", sourceId);
                         }
-                        else
-                        {
-                            record.Status = "Failed";
-                            record.ErrorMessage = "Validation failed";
-                            tracking.ExtractStatus = "Failed";
-                            tracking.ErrorMessage = "Validation failed";
 
-                            await _repository.InsertAsync(record, cancellationToken);
-                            _logger.LogWarning("Validation failed for record {SourceId}", sourceId);
-                        }
+                        //if (await _validator.IsValidAsync(json, cancellationToken))
+                        //{
+                            
+                        //}
+                        //else
+                        //{
+                        //    //record.Status = "Failed";
+                        //    //record.ErrorMessage = "Validation failed";
+                        //    //tracking.ExtractStatus = "Failed";
+                        //    //tracking.ErrorMessage = "Validation failed";
+
+                        //    //await _repository.InsertAsync(record, cancellationToken);
+                        //    _logger.LogWarning("Validation failed for record {SourceId}", sourceId);
+                        //}
 
                         await _syncTrackingRepository.AddOrUpdateAsync(tracking, cancellationToken);
                     }

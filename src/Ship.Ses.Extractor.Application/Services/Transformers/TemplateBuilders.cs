@@ -69,6 +69,8 @@ namespace Ship.Ses.Extractor.Application.Services.Transformers
                     if (!row.TryGetValue(sourceField, out var val) || val == null)
                         continue;
 
+                    var stringVal = val.ToString();
+
                     if (key.StartsWith("telecom["))
                     {
                         contact["telecom"] ??= new JsonArray();
@@ -78,48 +80,59 @@ namespace Ship.Ses.Extractor.Application.Services.Transformers
                             telecomArray.Add(new JsonObject());
                         var entry = telecomArray[index]!;
                         if (entry is JsonObject obj)
-                            obj["value"] = JsonValue.Create(val.ToString());
+                            obj["value"] = JsonValue.Create(stringVal);
                     }
                     else if (key.StartsWith("address."))
                     {
                         contact["address"] ??= new JsonObject();
                         var address = (JsonObject)contact["address"]!;
                         var addressField = key["address.".Length..];
-                        address[addressField] = JsonValue.Create(val.ToString());
+                        address[addressField] = JsonValue.Create(stringVal);
                     }
                     else if (key.StartsWith("name"))
                     {
                         contact["name"] ??= new JsonObject();
                         var name = (JsonObject)contact["name"]!;
-                        name["text"] = JsonValue.Create(val.ToString());
+                        name["text"] = JsonValue.Create(stringVal);
                     }
                     else if (key.StartsWith("organization."))
                     {
                         contact["organization"] ??= new JsonObject();
                         var org = (JsonObject)contact["organization"]!;
                         var orgField = key["organization.".Length..];
-                        org[orgField] = JsonValue.Create(val.ToString());
+                        org[orgField] = JsonValue.Create(stringVal);
                     }
                     else
                     {
-                        contact[key] = JsonValue.Create(val.ToString());
+                        // Normalize gender and other enums to lowercase
+                        if (key.Equals("gender", StringComparison.OrdinalIgnoreCase))
+                            contact[key] = JsonValue.Create(stringVal.ToLowerInvariant());
+                        else
+                            contact[key] = JsonValue.Create(stringVal);
                     }
                 }
             }
 
+            // Apply defaults
             if (field.Defaults != null)
             {
                 foreach (var kvp in field.Defaults)
                 {
-                    if (kvp.Key != "organization")
+                    var key = kvp.Key;
+                    if (key != "organization")
                     {
-                        contact[kvp.Key] = JsonSerializer.SerializeToNode(kvp.Value);
+                        if (key.Equals("gender", StringComparison.OrdinalIgnoreCase) && kvp.Value is string genderStr)
+                            contact[key] = JsonValue.Create(genderStr.ToLowerInvariant());
+                        else
+                            contact[key] = JsonSerializer.SerializeToNode(kvp.Value);
                     }
                 }
             }
 
+            // Apply to FHIR object
             FhirJsonHelper.SetFhirValue(fhir, field.FhirPath, contact, logger);
         }
+
 
         public static void ApplyAddress(JsonObject fhir, FieldMapping field, IDictionary<string, object> row, ILogger logger)
         {
@@ -290,8 +303,41 @@ namespace Ship.Ses.Extractor.Application.Services.Transformers
             FhirJsonHelper.SetFhirValue(fhir, field.FhirPath, identifier, logger);
         }
 
-
         public static void ApplyContactPoint(JsonObject fhir, FieldMapping field, IDictionary<string, object> row, ILogger logger)
+        {
+            if (field == null || string.IsNullOrWhiteSpace(field.FhirPath))
+            {
+                logger.LogWarning("ApplyContactPoint skipped: field or FhirPath is null.");
+                return;
+            }
+
+            var contactPoint = new JsonObject();
+
+            // Extract 'value'
+            if (field.EmrFieldMap?.TryGetValue("value", out var valueField) == true &&
+                row.TryGetValue(valueField, out var value) && value != null)
+            {
+                contactPoint["value"] = JsonValue.Create(value.ToString());
+            }
+
+            // Apply 'system' and 'use' from defaults
+            if (field.Defaults != null)
+            {
+                if (field.Defaults.TryGetValue("system", out var system) && system != null)
+                    contactPoint["system"] = JsonValue.Create(system.ToString().ToLowerInvariant());
+
+                if (field.Defaults.TryGetValue("use", out var use) && use != null)
+                    contactPoint["use"] = JsonValue.Create(use.ToString().ToLowerInvariant());
+            }
+
+            // Set telecom under contact
+            FhirJsonHelper.SetFhirValue(fhir, field.FhirPath, contactPoint, logger);
+
+        }
+
+
+
+        public static void ApplyContactPoint1(JsonObject fhir, FieldMapping field, IDictionary<string, object> row, ILogger logger)
         {
             var contactPoint = new JsonObject();
 
@@ -310,6 +356,8 @@ namespace Ship.Ses.Extractor.Application.Services.Transformers
                     contactPoint["use"] = JsonValue.Create(use.ToString());
             }
 
+            
+
             FhirJsonHelper.SetFhirValue(fhir, field.FhirPath, contactPoint, logger);
         }
         public static void ApplyReference(JsonObject fhir, FieldMapping field, IDictionary<string, object> row, ILogger logger)
@@ -319,15 +367,26 @@ namespace Ship.Ses.Extractor.Application.Services.Transformers
             if (field.Defaults != null)
             {
                 reference = new JsonObject();
+
                 foreach (var kvp in field.Defaults)
                 {
-                    reference[kvp.Key] = JsonValue.Create(kvp.Value?.ToString());
+                    var key = kvp.Key.ToLowerInvariant(); // Normalize ALL keys to lowercase
+                    reference[key] = JsonValue.Create(kvp.Value?.ToString());
                 }
             }
-            else if (field.Template == "reference" && field.FhirPath == "managingOrganization" && _envDefaults?.ManagingOrganization != null)
+            else if (field.Template == "reference" &&
+                     field.FhirPath == "managingOrganization" &&
+                     _envDefaults?.ManagingOrganization is not null)
             {
                 logger.LogInformation("ℹ️ Using managingOrganization from environment defaults.");
                 reference = JsonSerializer.SerializeToNode(_envDefaults.ManagingOrganization) as JsonObject;
+
+                if (reference != null)
+                {
+                    // Normalize keys: Reference → reference, Display → display
+                    NormalizeKey(reference, "Reference", "reference");
+                    NormalizeKey(reference, "Display", "display");
+                }
             }
 
             if (reference != null)
@@ -339,5 +398,16 @@ namespace Ship.Ses.Extractor.Application.Services.Transformers
                 logger.LogWarning("⚠️ No reference value found for {FhirPath}", field.FhirPath);
             }
         }
+
+        private static void NormalizeKey(JsonObject obj, string oldKey, string newKey)
+        {
+            if (obj.TryGetPropertyValue(oldKey, out var val))
+            {
+                obj.Remove(oldKey);
+                obj[newKey] = val;
+            }
+        }
+
+
     }
 }

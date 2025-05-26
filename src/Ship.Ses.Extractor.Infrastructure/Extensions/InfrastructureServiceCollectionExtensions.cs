@@ -62,7 +62,6 @@ namespace Ship.Ses.Extractor.Infrastructure.Extensions
             services.AddScoped<IDataExtractorService, EfSqlDataExtractorService>();
             services.AddScoped<ISyncTrackingRepository, SyncTrackingRepository>();
             services.AddSingleton<IResourceTransformer<System.Text.Json.Nodes.JsonObject>, PatientTransformer>();
-            services.AddSingleton<IFhirValidator, PassThroughFhirValidator>();
             services.AddScoped<IFhirSyncRepository<PatientSyncRecord>, MongoFhirSyncRepository<PatientSyncRecord>>();
 
 

@@ -38,7 +38,7 @@ namespace Ship.Ses.Extractor.Application.Services.Transformers
                         case "contactPoint":
                             TemplateBuilders.ApplyContactPoint(fhir, field, row, _logger);
                             break;
-                        case "address":
+                        case "address": 
                             TemplateBuilders.ApplyAddress(fhir, field, row, _logger);
                             break;
                         case "codeableConcept":
@@ -91,7 +91,22 @@ namespace Ship.Ses.Extractor.Application.Services.Transformers
             return fhir;
         }
 
+        public JsonObject NormalizeEnumFields(JsonObject resource)
+        {
+            var enumFields = new[] { "gender", "maritalStatus", "status", "use" };
 
+            foreach (var field in enumFields)
+            {
+                if (resource.TryGetPropertyValue(field, out var node) &&
+                    node is JsonValue value &&
+                    value.TryGetValue<string>(out var str))
+                {
+                    resource[field] = JsonValue.Create(str.ToLowerInvariant());
+                }
+            }
+
+            return resource;
+        }
         private object ConvertField(object value, string? type, string? format)
         {
             try
