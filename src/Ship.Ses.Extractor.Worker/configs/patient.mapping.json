@@ -138,8 +138,8 @@
             }
         },
         {
-            "fhirPath": "identifier[0]",
             "template": "identifier",
+            "fhirPath": "identifier[0]",
             "required": true,
             "emrFieldPriority": {
                 "national_id": "nin",
@@ -174,7 +174,8 @@
                 }
             },
             "defaults": {
-                "use": "official"
+                "use": "official",
+                "system": "http://hospital.smarthealth.org/patient-ids"
             }
         },
         {

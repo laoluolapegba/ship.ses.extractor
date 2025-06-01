@@ -19,7 +19,7 @@ namespace Ship.Ses.Extractor.Domain.Models.Extractor
         [JsonPropertyName("emrFieldMap")]
         public Dictionary<string, string>? EmrFieldMap { get; set; }
 
-        [JsonPropertyName("emrFieldPriorityMap")]
+        [JsonPropertyName("emrFieldPriority")]
         public Dictionary<string, string>? EmrFieldPriorityMap { get; set; }
 
         [JsonPropertyName("identifierTypeMap")]

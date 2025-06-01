@@ -35,24 +35,25 @@ namespace Ship.Ses.Extractor.Worker
             _logger.LogInformation("🚀 Starting Patient Extractor Worker...");
 
 
-
-            while (!stoppingToken.IsCancellationRequested)
+            try
             {
-                try
-                {
-                    using var scope = _scopeFactory.CreateScope();
-                    var extractor = scope.ServiceProvider.GetRequiredService<PatientResourceExtractor>();
-                    await extractor.ExtractAndPersistAsync(stoppingToken);
-                    _logger.LogInformation("✅ Patient extraction completed");
-                }
-                catch (Exception ex)
-                {
-                    _logger.LogError(ex, "❌ Unhandled exception in PatientExtractorWorker");
-
-                    // Optional: delay restart or retry loop
-                    await Task.Delay(TimeSpan.FromSeconds(10), stoppingToken);
-                }
+                using var scope = _scopeFactory.CreateScope();
+                var extractor = scope.ServiceProvider.GetRequiredService<PatientResourceExtractor>();
+                await extractor.ExtractAndPersistAsync(stoppingToken);
+                _logger.LogInformation("✅ Patient extraction completed");
             }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "❌ Unhandled exception in PatientExtractorWorker");
+
+                // Optional: delay restart or retry loop
+                await Task.Delay(TimeSpan.FromSeconds(60), stoppingToken);
+            }
+
+            //while (!stoppingToken.IsCancellationRequested)
+            //{
+                
+            //}
         }
         public override async Task StopAsync(CancellationToken cancellationToken)
         {

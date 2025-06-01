@@ -246,62 +246,68 @@ namespace Ship.Ses.Extractor.Application.Services.Transformers
         public static void ApplyIdentifier(JsonObject fhir, FieldMapping field, IDictionary<string, object> row, ILogger logger)
         {
             var identifier = new JsonObject();
-            string? selectedAlias = null;
+            string? selectedField = null;
             object? identifierValue = null;
 
+            // 🔍 Check priority fields in order
             if (field.EmrFieldPriorityMap != null)
             {
-                foreach (var kvp in field.EmrFieldPriorityMap)
+                foreach (var (alias, emrField) in field.EmrFieldPriorityMap)
                 {
-                    var alias = kvp.Key;
-                    var emrColumn = kvp.Value;
-
-                    if (row.TryGetValue(emrColumn, out var rawVal) && rawVal != null && !string.IsNullOrWhiteSpace(rawVal.ToString()))
+                    if (row.TryGetValue(emrField, out var rawVal) && rawVal != null && !string.IsNullOrWhiteSpace(rawVal.ToString()))
                     {
                         identifierValue = rawVal;
-                        selectedAlias = alias;
+                        selectedField = emrField; // 👈 this should match the key in identifierTypeMap
+                        logger.LogInformation("✅ Selected identifier: {Field} = {Value}", emrField, rawVal);
                         break;
                     }
                 }
 
                 if (identifierValue == null)
                 {
-                    logger.LogWarning("❌ No valid identifier found from emrFieldPriorityMap");
+                    logger.LogWarning("❌ No valid identifier found in emrFieldPriorityMap.");
                     return;
                 }
 
                 identifier["value"] = JsonValue.Create(identifierValue.ToString());
 
-                // Use identifierTypeMap with the alias
-                if (field.IdentifierTypeMap != null && field.IdentifierTypeMap.TryGetValue(selectedAlias!, out var typeMetadata))
+                // 📦 Add type metadata
+                if (field.IdentifierTypeMap != null && field.IdentifierTypeMap.TryGetValue(selectedField!, out var typeMetadata))
                 {
-                    var typeObj = new JsonObject();
-
                     var coding = new JsonObject();
-                    if (typeMetadata.TryGetValue("system", out var system)) coding["system"] = JsonValue.Create(system.ToString());
-                    if (typeMetadata.TryGetValue("code", out var code)) coding["code"] = JsonValue.Create(code.ToString());
-                    if (typeMetadata.TryGetValue("display", out var display)) coding["display"] = JsonValue.Create(display.ToString());
+                    if (typeMetadata.TryGetValue("system", out var system)) coding["system"] = JsonValue.Create(system?.ToString());
+                    if (typeMetadata.TryGetValue("code", out var code)) coding["code"] = JsonValue.Create(code?.ToString());
+                    if (typeMetadata.TryGetValue("display", out var display)) coding["display"] = JsonValue.Create(display?.ToString());
 
-                    typeObj["coding"] = new JsonArray { coding };
+                    var typeObj = new JsonObject
+                    {
+                        ["coding"] = new JsonArray { coding }
+                    };
 
-                    if (typeMetadata.TryGetValue("text", out var text)) typeObj["text"] = JsonValue.Create(text.ToString());
+                    if (typeMetadata.TryGetValue("text", out var text))
+                        typeObj["text"] = JsonValue.Create(text?.ToString());
 
                     identifier["type"] = typeObj;
                 }
                 else
                 {
-                    logger.LogWarning("⚠️ No identifier type metadata for alias '{Alias}'", selectedAlias);
+                    logger.LogWarning("⚠️ No identifier type metadata found for selected field '{SelectedField}'", selectedField);
                 }
             }
 
+            // 🛠 Apply any default values
             if (field.Defaults != null)
             {
-                if (field.Defaults.TryGetValue("use", out var use)) identifier["use"] = JsonValue.Create(use.ToString());
-                if (field.Defaults.TryGetValue("system", out var system)) identifier["system"] = JsonValue.Create(system.ToString());
+                if (field.Defaults.TryGetValue("use", out var use))
+                    identifier["use"] = JsonValue.Create(use?.ToString());
+                if (field.Defaults.TryGetValue("system", out var system))
+                    identifier["system"] = JsonValue.Create(system?.ToString());
             }
 
+            // ✅ Inject into FHIR JSON
             FhirJsonHelper.SetFhirValue(fhir, field.FhirPath, identifier, logger);
         }
+
 
         public static void ApplyContactPoint(JsonObject fhir, FieldMapping field, IDictionary<string, object> row, ILogger logger)
         {
