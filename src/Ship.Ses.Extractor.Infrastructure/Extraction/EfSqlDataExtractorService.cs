@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using DnsClient.Protocol;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Ship.Ses.Extractor.Application.Services;
 using Ship.Ses.Extractor.Domain.Models.Extractor;
@@ -27,7 +28,13 @@ namespace Ship.Ses.Extractor.Infrastructure.Extraction
         {
             var results = new List<IDictionary<string, object>>();
             var sql = $"SELECT * FROM {mapping.TableName} where extracted_flag='N'";
-
+            //sql += mapping.Fields.Count > 0
+            //     ? " AND " + string.Join(" AND ", mapping.Fields.Select(f => $"{f.ColumnName} IS NOT NULL"))
+            //    : string.Empty;
+            //if i have extracted it before, then dont check it unless it has an updated date later than the date last recorded in sync tracking  (it has been updated by the EMR) 
+            //should i not be attempting to sync only records that will PASS. if so i should not insert records that will not sync in the landingzone
+            //in order to reduce the stress of handling
+            // introduce a worker to handle setting the extracted_flag to 'Y' after the sync is successful
             try
             {
                 _logger.LogInformation("📥 Starting extraction from table '{TableName}' for resource '{ResourceType}'", mapping.TableName, mapping.ResourceType);
@@ -62,7 +69,7 @@ namespace Ship.Ses.Extractor.Infrastructure.Extraction
                         catch (Exception ex)
                         {
                             _logger.LogError(ex,
-                                "❌ Error reading column '{Column}' at index {Index} in table '{TableName}'. Value skipped.",
+                                "❌ Error reading column '{Column}' at index {Index} in table '{TableName}'. Value skipped. The value is not null but invalid",
                                 columnName, i, mapping.TableName);
 
                             row[columnName] = null; // Optionally: use "InvalidDate" as a string placeholder
