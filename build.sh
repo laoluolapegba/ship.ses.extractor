@@ -2,7 +2,7 @@
 set -e
 
 # 🧱 Configuration
-IMAGE_NAME="ship-extractor"
+IMAGE_NAME="ship-ses-extractor"
 DOCKER_CONTEXT="./docker-context"
 BUILD_CONFIGURATION="Release"
 
@@ -41,7 +41,7 @@ DOCKER_USERNAME=$(echo "https://index.docker.io/v1/" | docker-credential-desktop
 #fi
 
 # 🏷️ Tag image
-#DOCKERHUB_USERNAME="laolu" # 👈 Replace or make dynamic
+DOCKERHUB_USERNAME="laolu" # 👈 Replace or make dynamic
 echo "🏷️ Tagging image as $DOCKERHUB_USERNAME/$IMAGE_NAME:uat"
 docker tag $IMAGE_NAME:uat $DOCKERHUB_USERNAME/$IMAGE_NAME:uat
 

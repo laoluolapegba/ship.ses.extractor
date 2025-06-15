@@ -27,24 +27,49 @@ namespace Ship.Ses.Extractor.Infrastructure.Extraction
         public async Task<IEnumerable<IDictionary<string, object>>> ExtractAsync(TableMapping mapping, CancellationToken cancellationToken = default)
         {
             var results = new List<IDictionary<string, object>>();
-            var sql = $"SELECT * FROM {mapping.TableName} where extracted_flag='N'";
-            //sql += mapping.Fields.Count > 0
-            //     ? " AND " + string.Join(" AND ", mapping.Fields.Select(f => $"{f.ColumnName} IS NOT NULL"))
-            //    : string.Empty;
-            //if i have extracted it before, then dont check it unless it has an updated date later than the date last recorded in sync tracking  (it has been updated by the EMR) 
-            //should i not be attempting to sync only records that will PASS. if so i should not insert records that will not sync in the landingzone
-            //in order to reduce the stress of handling
-            // introduce a worker to handle setting the extracted_flag to 'Y' after the sync is successful
+            var tableName = mapping.TableName;
+            var resourceType = mapping.ResourceType;
+            var sourceIdColumn = "patient_id"; // You can make this configurable later
+
+            string countSql = $@"
+        SELECT COUNT(*) 
+        FROM {tableName} p
+        LEFT JOIN ses_extract_tracking s 
+            ON s.resource_type = @ResourceType AND s.source_id = p.{sourceIdColumn}
+        WHERE s.source_id IS NULL AND p.extracted_flag = 'N'";
+
             try
             {
-                _logger.LogInformation("📥 Starting extraction from table '{TableName}' for resource '{ResourceType}'", mapping.TableName, mapping.ResourceType);
-
                 await using var connection = _context.Database.GetDbConnection();
                 if (connection.State != ConnectionState.Open)
                 {
                     await connection.OpenAsync(cancellationToken);
-                    _logger.LogDebug("Opened database connection to {DataSource}", connection.DataSource);
+                    _logger.LogDebug("🔌 Opened database connection to {DataSource}", connection.DataSource);
                 }
+
+                await using (var countCmd = connection.CreateCommand())
+                {
+                    countCmd.CommandText = countSql;
+
+                    var param = countCmd.CreateParameter();
+                    param.ParameterName = "@ResourceType";
+                    param.Value = resourceType;
+                    countCmd.Parameters.Add(param);
+
+                    var countResult = await countCmd.ExecuteScalarAsync(cancellationToken);
+                    int rowCount = Convert.ToInt32(countResult);
+
+                    if (rowCount == 0)
+                    {
+                        _logger.LogInformation("⏳ No new unsynced rows found in '{TableName}' for resource '{ResourceType}'", tableName, resourceType);
+                        await Task.Delay(TimeSpan.FromSeconds(180), cancellationToken);
+                        return results;
+                    }
+
+                    _logger.LogInformation("📥 Found {Count} new rows in '{TableName}' for '{ResourceType}'", rowCount, tableName, resourceType);
+                }
+
+                var sql = $"SELECT * FROM {tableName} WHERE extracted_flag = 'N'";
 
                 await using var command = connection.CreateCommand();
                 command.CommandText = sql;
@@ -62,33 +87,32 @@ namespace Ship.Ses.Extractor.Infrastructure.Extraction
                         {
                             var value = await reader.IsDBNullAsync(i, cancellationToken)
                                 ? null
-                                : reader.GetValue(i); // This is where the crash happens - laolu
-
+                                : reader.GetValue(i);
                             row[columnName] = value;
                         }
                         catch (Exception ex)
                         {
                             _logger.LogError(ex,
-                                "❌ Error reading column '{Column}' at index {Index} in table '{TableName}'. Value skipped. The value is not null but invalid",
-                                columnName, i, mapping.TableName);
-
-                            row[columnName] = null; // Optionally: use "InvalidDate" as a string placeholder
+                                "❌ Error reading column '{Column}' at index {Index} in table '{TableName}'. Skipping column.",
+                                columnName, i, tableName);
+                            row[columnName] = null;
                         }
                     }
 
                     results.Add(row);
                 }
 
-                _logger.LogInformation("📦 Extracted {Count} rows from '{TableName}'", results.Count, mapping.TableName);
+                _logger.LogInformation("📦 Extracted {Count} rows from '{TableName}'", results.Count, tableName);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "❌ Failed to extract from table '{TableName}'", mapping.TableName);
-                throw; // Re-throw to let higher-level logic handle it (e.g., retry or sync tracking)
+                throw;
             }
 
             return results;
         }
+
     }
 
 }
