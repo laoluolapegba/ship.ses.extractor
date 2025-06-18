@@ -110,7 +110,8 @@ namespace Ship.Ses.Extractor.Application.Services.Extractors
                                 RetryCount = 0,
                                 ErrorMessage = errorMessage,
                                 CreatedAt = DateTime.UtcNow,
-                                LastAttemptAt = DateTime.UtcNow
+                                LastAttemptAt = DateTime.UtcNow,
+                               
                             }, cancellationToken);
 
                             continue; // Skip persistence
@@ -122,7 +123,11 @@ namespace Ship.Ses.Extractor.Application.Services.Extractors
                             FhirJson = BsonDocument.Parse(normalizedjson.ToJsonString()),
                             CreatedDate = DateTime.UtcNow,
                             Status = "Pending",
-                            RetryCount = 0
+                            LastAttemptAt = DateTime.UtcNow,
+                            ExtractSource = "extractor",
+                            RetryCount = 0,
+                            TransactionId = string.Empty,
+                            ApiResponsePayload = string.Empty // Assuming this is not used in this context
                         };
 
                         string formattedJson = JsonSerializer.Serialize(normalizedjson, new JsonSerializerOptions { WriteIndented = true });
@@ -149,20 +154,7 @@ namespace Ship.Ses.Extractor.Application.Services.Extractors
                             _logger.LogInformation("Successfully persisted record {SourceId}", sourceId);
                         }
 
-                        //if (await _validator.IsValidAsync(json, cancellationToken))
-                        //{
-                            
-                        //}
-                        //else
-                        //{
-                        //    //record.Status = "Failed";
-                        //    //record.ErrorMessage = "Validation failed";
-                        //    //tracking.ExtractStatus = "Failed";
-                        //    //tracking.ErrorMessage = "Validation failed";
-
-                        //    //await _repository.InsertAsync(record, cancellationToken);
-                        //    _logger.LogWarning("Validation failed for record {SourceId}", sourceId);
-                        //}
+                       
 
                         await _syncTrackingRepository.AddOrUpdateAsync(tracking, cancellationToken);
                     }

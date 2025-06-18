@@ -84,6 +84,7 @@
             "template": "address",
             "emrFieldMap": {
                 "line[0]": "address",
+                "text": "address",
                 "city": "origin_lga",
                 "state": "origin_state",
                 "country": "origin_country"
@@ -98,17 +99,30 @@
             "required": true,
             "template": "contact",
             "emrFieldMap": {
-                "name": "nok_full_name",
-                "gender": "gender",
+                "name.family": "nok_full_name",
+                "name.given[0]": "nok_full_name",
+                "name.prefix": "__empty__",
                 "telecom[0].value": "nok_phone",
-                "address.line[0]": "nok_address",
-                "address.city": "__empty__",
-                "address.state": "__empty__",
-                "address.country": "__empty__",
+                "telecom[1].value": "email",
+                "address.line": "nok_address",
+                "address.text": "nok_address",
+                "address.city": "origin_lga",
+                "address.state": "origin_state",
+                "address.country": "origin_country",
+                "address.use": "__default__",
+                "address.type": "__default__",
                 "organization.reference": "__empty__",
-                "organization.display": "__empty__"
+                "organization.display": "__empty__",
+                "gender": "gender"
             },
             "defaults": {
+                "name.use": "official",
+                "address.use": "home",
+                "address.type": "physical",
+                "telecom[0].system": "phone",
+                "telecom[0].use": "home",
+                "telecom[1].system": "email",
+                "telecom[1].use": "work",
                 "relationship": [
                     {
                         "coding": [
@@ -145,7 +159,8 @@
                 "national_id": "nin",
                 "bank_id": "bvn",
                 "passport_id": "passport_number",
-                "driver_license": "driver_license"
+                "driver_license": "driver_license",
+                "emr_patient_identifier": "upi"
             },
             "identifierTypeMap": {
                 "nin": {
@@ -171,6 +186,12 @@
                     "display": "Drivers License",
                     "system": "http://terminology.hl7.org/CodeSystem/v2-0203",
                     "text": "Drivers License"
+                },
+                "upi": {
+                    "code": "UPI",
+                    "display": "EMR Patient Identifier",
+                    "system": "http://terminology.hl7.org/CodeSystem/v2-0203",
+                    "text": "EMR Patient Identifier"
                 }
             },
             "defaults": {

@@ -45,6 +45,15 @@ namespace Ship.Ses.Extractor.Domain.Entities.Extractor
 
         [BsonElement("syncedFhirResourceId")]
         public string SyncedResourceId { get; set; } // Updated after sync
+        [BsonElement("transactionId")]
+        public string TransactionId { get; set; }
+        [BsonElement("extractSource")]
+        public string ExtractSource { get; set; } // Source of the extraction (e.g., "extractor", "api")
+        [BsonElement("lastAttemptAt")]
+        [BsonRepresentation(BsonType.DateTime)]
+        public DateTime? LastAttemptAt { get; set; } // Last attempt time for sync
+        [BsonElement("apiResponsePayload")]
+        public string ApiResponsePayload { get; set; }  // Raw JSON response from FHIR API
         // Derived classes must override collection name
         public abstract string CollectionName { get; }
 
