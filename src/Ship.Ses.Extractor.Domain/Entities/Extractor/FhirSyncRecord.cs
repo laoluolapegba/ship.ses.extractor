@@ -54,6 +54,9 @@ namespace Ship.Ses.Extractor.Domain.Entities.Extractor
         public DateTime? LastAttemptAt { get; set; } // Last attempt time for sync
         [BsonElement("apiResponsePayload")]
         public string ApiResponsePayload { get; set; }  // Raw JSON response from FHIR API
+
+        [BsonElement("facilityId")]
+        public string FacilityId { get; set; }
         // Derived classes must override collection name
         public abstract string CollectionName { get; }
 

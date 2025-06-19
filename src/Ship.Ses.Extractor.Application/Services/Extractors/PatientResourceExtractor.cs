@@ -17,6 +17,9 @@ using System.Threading.Tasks;
 using Serilog.Context;
 using Microsoft.Extensions.Logging;
 using System.Text.Json;
+using Microsoft.Extensions.Configuration;
+using System.Text.RegularExpressions;
+using Fhir.Metrics;
 
 namespace Ship.Ses.Extractor.Application.Services.Extractors
 {
@@ -29,7 +32,8 @@ namespace Ship.Ses.Extractor.Application.Services.Extractors
         private readonly IFhirSyncRepository<PatientSyncRecord> _repository;
         private readonly ISyncTrackingRepository _syncTrackingRepository;
         private readonly ILogger<PatientResourceExtractor> _logger;
-
+        private readonly string _facilityId;
+        const string prefix = "Organization/";
         public PatientResourceExtractor(
             ITableMappingService mappingService,
             IDataExtractorService dataExtractor,
@@ -37,7 +41,8 @@ namespace Ship.Ses.Extractor.Application.Services.Extractors
             IFhirResourceValidator validator,
             IFhirSyncRepository<PatientSyncRecord> repository,
             ISyncTrackingRepository syncTrackingRepository,
-            ILogger<PatientResourceExtractor> logger)
+            ILogger<PatientResourceExtractor> logger,
+            IConfiguration configuration)
         {
             _mappingService = mappingService;
             _dataExtractor = dataExtractor;
@@ -46,6 +51,27 @@ namespace Ship.Ses.Extractor.Application.Services.Extractors
             _repository = repository;
             _syncTrackingRepository = syncTrackingRepository;
             _logger = logger;
+            //_facilityId = configuration.GetSection("EnvironmentDefaults")["FacilityId"];
+            var envDefaults = configuration.GetSection("EnvironmentDefaults").Get<EnvironmentDefaults>();
+
+            const string prefix = "Organization/";
+            string? rawReference = envDefaults?.ManagingOrganization?.Reference;
+
+            // Check if the reference exists and starts with the expected prefix
+            if (string.IsNullOrWhiteSpace(rawReference) || !rawReference.StartsWith(prefix, StringComparison.OrdinalIgnoreCase))
+            {
+                var errorMessage = $"Extraction startup failed: 'EnvironmentDefaults:ManagingOrganization.Reference' is missing, empty, or does not start with '{prefix}'. Cannot determine Facility ID.";
+                logger.LogError(errorMessage);
+                throw new ApplicationException(errorMessage);
+            }
+            string potentialFacilityId = rawReference.Substring(prefix.Length);
+            if (!Guid.TryParse(potentialFacilityId, out _))
+            {
+                var errorMessage = $"Extraction startup failed: Extracted Facility ID '{potentialFacilityId}' from '{rawReference}' is not a valid GUID format. If a GUID is strictly required, please correct the configuration.";
+                logger.LogError(errorMessage);
+            }
+
+            _facilityId = potentialFacilityId;
         }
 
         public async Task ExtractAndPersistAsync(CancellationToken cancellationToken = default)
@@ -126,8 +152,10 @@ namespace Ship.Ses.Extractor.Application.Services.Extractors
                             LastAttemptAt = DateTime.UtcNow,
                             ExtractSource = "extractor",
                             RetryCount = 0,
-                            TransactionId = string.Empty,
-                            ApiResponsePayload = string.Empty // Assuming this is not used in this context
+                            TransactionId = null,
+                            ApiResponsePayload = null, // Initially null, will be updated after sync
+                            SyncedResourceId = null, // Initially null, will be updated after sync
+                            FacilityId = _facilityId,
                         };
 
                         string formattedJson = JsonSerializer.Serialize(normalizedjson, new JsonSerializerOptions { WriteIndented = true });
