@@ -5,6 +5,7 @@ using Ship.Ses.Extractor.Application.Interfaces;
 using Ship.Ses.Extractor.Domain.Repositories.DataMapping;
 using System;
 using System.Collections.Generic;
+using System.Text.Json;
 using System.Threading.Tasks;
 namespace Ship.Ses.Extractor.Presentation.Api.Controllers.v1
 {
@@ -55,6 +56,54 @@ namespace Ship.Ses.Extractor.Presentation.Api.Controllers.v1
             {
                 _logger.LogError(ex, "❌ Error retrieving FHIR resource types");
                 return StatusCode(500, "Error retrieving FHIR resource types");
+            }
+        }
+        /// <summary>
+        /// Retrieves the JSON structure of a specific FHIR resource type.
+        /// </summary>
+        /// <param name="resourceTypeId">The ID of the FHIR resource type.</param>
+        [HttpGet("resource-types/{resourceTypeId}/structure")]
+        // Change return type here:
+        [ProducesResponseType(typeof(JsonElement), StatusCodes.Status200OK)] // Or object/dynamic if less specific
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<ActionResult<JsonElement>> GetResourceStructure(int resourceTypeId) // Change return type here
+        {
+            _logger.LogInformation("📥 Received request to retrieve structure for FHIR resource type ID: {ResourceTypeId}", resourceTypeId);
+
+            try
+            {
+                var resourceType = await _fhirResourceService.GetResourceTypeByIdAsync(resourceTypeId);
+
+                if (resourceType == null)
+                {
+                    _logger.LogWarning("⚠️ FHIR resource type with ID {ResourceTypeId} not found", resourceTypeId);
+                    return NotFound($"FHIR resource type with ID {resourceTypeId} not found");
+                }
+
+                if (string.IsNullOrEmpty(resourceType.Structure))
+                {
+                    _logger.LogWarning("⚠️ Structure not available for FHIR resource type ID: {ResourceTypeId}", resourceTypeId);
+                    return NotFound($"Structure not available for FHIR resource type ID {resourceTypeId}");
+                }
+
+                // Parse the JSON string into a JsonDocument/JsonElement before returning
+                // This tells ASP.NET Core to serialize the actual JSON object, not a string literal of it.
+                using (JsonDocument doc = JsonDocument.Parse(resourceType.Structure))
+                {
+                    _logger.LogInformation("📤 Successfully retrieved structure for FHIR resource type ID: {ResourceTypeId}", resourceTypeId);
+                    return Ok(doc.RootElement.Clone()); // Clone to return it from the using block
+                }
+            }
+            catch (JsonException jsonEx) // Catch if resourceType.Structure is not valid JSON
+            {
+                _logger.LogError(jsonEx, "❌ Failed to parse stored FHIR structure for ID {ResourceTypeId}: {Structure}", resourceTypeId, resourceType.Structure);
+                return StatusCode(500, "Invalid FHIR structure stored on server.");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "❌ Error retrieving structure for FHIR resource type ID {ResourceTypeId}", resourceTypeId);
+                return StatusCode(500, $"Error retrieving structure for FHIR resource type ID {resourceTypeId}");
             }
         }
 

@@ -21,5 +21,6 @@ namespace Ship.Ses.Extractor.Application.DTOs
         public bool IsActive { get; set; }
         public DateTime CreatedDate { get; set; }
         public DateTime LastModifiedDate { get; set; }
+        public string Password { get; set; }
     }
 }

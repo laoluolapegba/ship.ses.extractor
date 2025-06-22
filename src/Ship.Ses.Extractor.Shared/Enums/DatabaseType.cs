@@ -8,8 +8,8 @@ namespace Ship.Ses.Extractor.Shared.Enums
 {
     public enum DatabaseType
     {
-        MySql,
-        PostgreSql,
-        MsSql
+        MySql = 0,
+        PostgreSql =1,
+        MsSql = 2
     }
 }

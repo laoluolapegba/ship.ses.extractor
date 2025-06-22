@@ -36,6 +36,35 @@
             <param name="id">The ID of the EMR connection.</param>
             <returns>Result of the selection operation.</returns>
         </member>
+        <member name="M:Ship.Ses.Extractor.Presentation.Api.Controllers.v1.EmrController.GetConnectionById(System.Int32)">
+            <summary>
+            Retrieves a specific EMR connection by its ID.
+            </summary>
+            <param name="id">The unique identifier of the EMR connection.</param>
+            <returns>The EMR connection details.</returns>
+        </member>
+        <member name="M:Ship.Ses.Extractor.Presentation.Api.Controllers.v1.EmrController.CreateConnection(Ship.Ses.Extractor.Application.DTOs.EmrConnectionDto)">
+            <summary>
+            Creates a new EMR connection.
+            </summary>
+            <param name="connectionDto">The EMR connection data.</param>
+            <returns>The ID of the created connection.</returns>
+        </member>
+        <member name="M:Ship.Ses.Extractor.Presentation.Api.Controllers.v1.EmrController.UpdateConnection(System.Int32,Ship.Ses.Extractor.Application.DTOs.EmrConnectionDto)">
+            <summary>
+            Updates an existing EMR connection.
+            </summary>
+            <param name="id">The ID of the EMR connection to update.</param>
+            <param name="connectionDto">The updated EMR connection data.</param>
+            <returns>No content if successful.</returns>
+        </member>
+        <member name="M:Ship.Ses.Extractor.Presentation.Api.Controllers.v1.EmrController.DeleteConnection(System.Int32)">
+            <summary>
+            Deletes an EMR connection.
+            </summary>
+            <param name="id">The ID of the EMR connection to delete.</param>
+            <returns>No content if successful.</returns>
+        </member>
         <member name="M:Ship.Ses.Extractor.Presentation.Api.Controllers.v1.EmrController.TestConnectionById(System.Int32)">
             <summary>
             Tests a specific EMR connection by ID.
@@ -47,6 +76,12 @@
             <summary>
             Retrieves all supported FHIR resource types.
             </summary>
+        </member>
+        <member name="M:Ship.Ses.Extractor.Presentation.Api.Controllers.v1.MappingsController.GetResourceStructure(System.Int32)">
+            <summary>
+            Retrieves the JSON structure of a specific FHIR resource type.
+            </summary>
+            <param name="resourceTypeId">The ID of the FHIR resource type.</param>
         </member>
         <member name="M:Ship.Ses.Extractor.Presentation.Api.Controllers.v1.MappingsController.GetMappings">
             <summary>
