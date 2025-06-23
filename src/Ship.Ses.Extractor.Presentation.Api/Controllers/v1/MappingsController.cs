@@ -97,7 +97,7 @@ namespace Ship.Ses.Extractor.Presentation.Api.Controllers.v1
             }
             catch (JsonException jsonEx) // Catch if resourceType.Structure is not valid JSON
             {
-                _logger.LogError(jsonEx, "❌ Failed to parse stored FHIR structure for ID {ResourceTypeId}: {Structure}", resourceTypeId, resourceType.Structure);
+                _logger.LogError(jsonEx, "❌ Failed to parse stored FHIR structure for ID {ResourceTypeId}: {Structure}", resourceTypeId, "");
                 return StatusCode(500, "Invalid FHIR structure stored on server.");
             }
             catch (Exception ex)
