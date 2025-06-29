@@ -76,12 +76,20 @@ namespace Ship.Ses.Extractor.Presentation.Api.Controllers.v1
 
             try
             {
-                var tableNames = await _emrDatabaseService.GetTableNamesAsync();
-                var tableDtos = tableNames.Select(t => new EmrTableDto
+                var allTableSchemas = await _emrDatabaseService.GetAllTablesSchemaAsync(); 
+
+                var tableDtos = allTableSchemas.Select(ts => new EmrTableDto
                 {
-                    Name = t,
-                    Columns = new List<EmrColumnDto>()
-                });
+                    Name = ts.TableName,
+                    Columns = ts.Columns.Select(c => new EmrColumnDto
+                    {
+                        Name = c.Name,
+                        DataType = c.DataType,
+                        IsNullable = c.IsNullable,
+                        IsPrimaryKey = c.IsPrimaryKey
+                    }).ToList()
+                }).ToList();
+
                 return Ok(tableDtos);
             }
             catch (InvalidOperationException ex) // Catch the "No EMR connection has been selected" if it somehow slips through
@@ -143,6 +151,7 @@ namespace Ship.Ses.Extractor.Presentation.Api.Controllers.v1
                 return StatusCode(500, $"Error retrieving schema for table {tableName}");
             }
         }
+        
 
         /// <summary>
         /// Tests the EMR database connection.
