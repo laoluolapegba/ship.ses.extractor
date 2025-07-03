@@ -18,7 +18,7 @@ namespace Ship.Ses.Extractor.Application.DTOs
         public string FhirResourceTypeName { get; set; }
         public DateTime CreatedDate { get; set; }
         public DateTime LastModifiedDate { get; set; }
-        public List<ColumnMappingDto> Mappings { get; set; } = new List<ColumnMappingDto>();
+        public List<FieldMappingConfigurationModel> Mappings { get; set; } = new List<FieldMappingConfigurationModel>();
     }
 
     public class ColumnMappingDto

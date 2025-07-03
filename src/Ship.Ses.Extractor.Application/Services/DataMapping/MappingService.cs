@@ -62,7 +62,7 @@ namespace Ship.Ses.Extractor.Application.Services.DataMapping
             {
                 mapping.AddMapping(new ColumnMapping(
                     columnMapping.EmrTable,
-                    columnMapping.EmrColumn,
+                    columnMapping.EmrField,
                     columnMapping.FhirPath,
                     columnMapping.TransformationExpression));
             }
@@ -82,7 +82,7 @@ namespace Ship.Ses.Extractor.Application.Services.DataMapping
 
             var columnMappings = mappingDto.Mappings.Select(m => new ColumnMapping(
                 m.EmrTable,
-                m.EmrColumn,
+                m.EmrField,
                 m.FhirPath,
                 m.TransformationExpression)).ToList();
 
@@ -107,13 +107,15 @@ namespace Ship.Ses.Extractor.Application.Services.DataMapping
                 FhirResourceTypeName = mapping.FhirResourceType?.Name,
                 CreatedDate = mapping.CreatedDate,
                 LastModifiedDate = mapping.LastModifiedDate,
-                Mappings = mapping.ColumnMappings.Select(cm => new ColumnMappingDto
-                {
-                    EmrTable = cm.EmrTable,
-                    EmrColumn = cm.EmrColumn,
-                    FhirPath = cm.FhirPath,
-                    TransformationExpression = cm.TransformationExpression
-                }).ToList()
+                Mappings = mapping.ColumnMappings 
+            .Select(cm => new Ship.Ses.Extractor.Application.DTOs.FieldMappingConfigurationModel
+            {
+                // Ensure property names on 'cm' (ColumnMapping domain model) match
+                // what's available and what you want to map to FieldMappingConfigurationModel
+                EmrField = cm.EmrColumn,
+                TransformationExpression = cm.TransformationExpression
+            })
+            .ToList()
             };
         }
     }
