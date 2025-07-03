@@ -1,32 +1,32 @@
-# ---------- BUILD STAGE ----------
-FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
-WORKDIR /src
+# See https://aka.ms/customizecontainer to learn how to customize your debug container and how Visual Studio uses this Dockerfile to build your images for faster debugging.
 
-# Copy csproj files
-COPY ["src/Ship.Ses.Extractor.Worker/Ship.Ses.Extractor.Worker.csproj", "src/Ship.Ses.Extractor.Worker/"]
-COPY ["src/Ship.Ses.Extractor.Application/Ship.Ses.Extractor.Application.csproj", "src/Ship.Ses.Extractor.Application/"]
-COPY ["src/Ship.Ses.Extractor.Domain/Ship.Ses.Extractor.Domain.csproj", "src/Ship.Ses.Extractor.Domain/"]
-COPY ["src/Ship.Ses.Extractor.Infrastructure/Ship.Ses.Extractor.Infrastructure.csproj", "src/Ship.Ses.Extractor.Infrastructure/"]
-
-# Restore dependencies
-RUN dotnet restore "src/Ship.Ses.Extractor.Worker/Ship.Ses.Extractor.Worker.csproj"
-
-# Copy everything and build
-COPY . .
-WORKDIR "/src/src/Ship.Ses.Extractor.Worker"
-RUN dotnet publish "Ship.Ses.Extractor.Worker.csproj" -c Release -o /app/publish
-
-# ---------- RUNTIME STAGE ----------
-FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS runtime
+# This stage is used when running from VS in fast mode (Default for Debug configuration)
+FROM mcr.microsoft.com/dotnet/runtime:9.0 AS base
+USER $APP_UID
 WORKDIR /app
 
-# Optional: Create a non-root user
-# RUN useradd -m appuser && chown -R appuser /app
-# USER appuser
 
-COPY --from=build /app/publish .
+# This stage is used to build the service project
+FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
+ARG BUILD_CONFIGURATION=Release
+WORKDIR /src
+COPY ["Ship.Ses.Extractor/src/Ship.Ses.Extractor.Worker/Ship.Ses.Extractor.Worker.csproj", "Ship.Ses.Extractor/src/Ship.Ses.Extractor.Worker/"]
+COPY ["Ship.Ses.Extractor/src/Ship.Ses.Extractor.Application/Ship.Ses.Extractor.Application.csproj", "Ship.Ses.Extractor/src/Ship.Ses.Extractor.Application/"]
+COPY ["Ship.Ses.Extractor/src/Ship.Ses.Extractor.Domain/Ship.Ses.Extractor.Domain.csproj", "Ship.Ses.Extractor/src/Ship.Ses.Extractor.Domain/"]
+COPY ["Ship.Ses.Extractor/src/Ship.Ses.Extractor.Shared/Ship.Ses.Extractor.Shared.csproj", "Ship.Ses.Extractor/src/Ship.Ses.Extractor.Shared/"]
+COPY ["Ship.Ses.Extractor/src/Ship.Ses.Extractor.Infrastructure/Ship.Ses.Extractor.Infrastructure.csproj", "Ship.Ses.Extractor/src/Ship.Ses.Extractor.Infrastructure/"]
+RUN dotnet restore "./Ship.Ses.Extractor/src/Ship.Ses.Extractor.Worker/Ship.Ses.Extractor.Worker.csproj"
+COPY . .
+WORKDIR "/src/Ship.Ses.Extractor/src/Ship.Ses.Extractor.Worker"
+RUN dotnet build "./Ship.Ses.Extractor.Worker.csproj" -c $BUILD_CONFIGURATION -o /app/build
 
-# Ensure runtime uses Production environment
-ENV DOTNET_ENVIRONMENT=Production
+# This stage is used to publish the service project to be copied to the final stage
+FROM build AS publish
+ARG BUILD_CONFIGURATION=Release
+RUN dotnet publish "./Ship.Ses.Extractor.Worker.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
 
+# This stage is used in production or when running from VS in regular mode (Default when not using the Debug configuration)
+FROM base AS final
+WORKDIR /app
+COPY --from=publish /app/publish .
 ENTRYPOINT ["dotnet", "Ship.Ses.Extractor.Worker.dll"]
