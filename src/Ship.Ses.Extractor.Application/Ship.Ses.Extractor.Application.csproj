@@ -21,4 +21,8 @@
   <ItemGroup>
     <ProjectReference Include="..\Ship.Ses.Extractor.Domain\Ship.Ses.Extractor.Domain.csproj" />
   </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Interfaces\" />
+  </ItemGroup>
 </Project>
