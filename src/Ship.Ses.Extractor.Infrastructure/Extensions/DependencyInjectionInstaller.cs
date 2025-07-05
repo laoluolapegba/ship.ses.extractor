@@ -8,7 +8,6 @@ using Ship.Ses.Extractor.Application.Services.DataMapping;
 using Ship.Ses.Extractor.Domain.Repositories.DataMapping;
 using Ship.Ses.Extractor.Infrastructure.Persistance.Contexts;
 using Ship.Ses.Extractor.Infrastructure.Persistance.Repositories;
-using Ship.Ses.Extractor.Infrastructure.Services;
 using Ship.Ses.Extractor.Infrastructure.Settings;
 
 namespace Ship.Ses.Extractor.Infrastructure.Installers
@@ -28,8 +27,8 @@ namespace Ship.Ses.Extractor.Infrastructure.Installers
                     b => b.MigrationsAssembly(typeof(ExtractorDbContext).Assembly.FullName)));
 
             // Register EMR database services
-            services.AddSingleton<EmrDbContextFactory>();
-            services.AddScoped<IEmrDatabaseReader, EmrDatabaseReader>();
+            //services.AddSingleton<EmrDbContextFactory>();
+            //services.AddScoped<IEmrDatabaseReader, EmrDatabaseReader>();
 
             // Register repositories
             services.AddScoped<IMappingRepository, MappingRepository>();

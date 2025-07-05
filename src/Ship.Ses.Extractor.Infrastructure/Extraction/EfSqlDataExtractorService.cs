@@ -3,11 +3,13 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Ship.Ses.Extractor.Application.Services;
 using Ship.Ses.Extractor.Domain.Models.Extractor;
+using Ship.Ses.Extractor.Infrastructure.Helpers;
 using Ship.Ses.Extractor.Infrastructure.Persistance.Contexts;
 using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using System.Security;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -23,20 +25,29 @@ namespace Ship.Ses.Extractor.Infrastructure.Extraction
             _context = context;
             _logger = logger;
         }
-
+        private static readonly HashSet<string> AllowedTableNames = new()
+        {
+            "patient", "encounter", "lab_results" 
+        };
         public async Task<IEnumerable<IDictionary<string, object>>> ExtractAsync(TableMapping mapping, CancellationToken cancellationToken = default)
         {
             var results = new List<IDictionary<string, object>>();
             var tableName = mapping.TableName;
             var resourceType = mapping.ResourceType;
-            var sourceIdColumn = "patient_id"; // You can make this configurable later
+            var sourceIdColumn = "patient_id"; // Todo :make this configurable later
+
+            if (!AllowedTableNames.Contains(tableName))
+            {
+                _logger.LogWarning("⛔ Attempt to access disallowed table: {TableName}", SafeMessageHelper.Sanitize(tableName));
+                throw new SecurityException($"Table '{tableName}' is not allowed.");
+            }
 
             string countSql = $@"
-        SELECT COUNT(*) 
-        FROM {tableName} p
-        LEFT JOIN ses_extract_tracking s 
-            ON s.resource_type = @ResourceType AND s.source_id = p.{sourceIdColumn}
-        WHERE s.source_id IS NULL AND p.extracted_flag = 'N'";
+SELECT COUNT(*) 
+FROM {tableName} p
+LEFT JOIN ses_extract_tracking s 
+    ON s.resource_type = @ResourceType AND s.source_id = p.{sourceIdColumn}
+WHERE s.source_id IS NULL AND p.extracted_flag = 'N'";
 
             try
             {
@@ -44,9 +55,10 @@ namespace Ship.Ses.Extractor.Infrastructure.Extraction
                 if (connection.State != ConnectionState.Open)
                 {
                     await connection.OpenAsync(cancellationToken);
-                    _logger.LogDebug("🔌 Opened database connection to {DataSource}", connection.DataSource);
+                    _logger.LogDebug("🔌 Opened database connection to {DataSource}", SafeMessageHelper.Sanitize(connection.DataSource));
                 }
 
+                // Step 1: Count pending records
                 await using (var countCmd = connection.CreateCommand())
                 {
                     countCmd.CommandText = countSql;
@@ -61,18 +73,20 @@ namespace Ship.Ses.Extractor.Infrastructure.Extraction
 
                     if (rowCount == 0)
                     {
-                        _logger.LogInformation("⏳ No new unsynced rows found in '{TableName}' for resource '{ResourceType}'", tableName, resourceType);
-                        await Task.Delay(TimeSpan.FromSeconds(180), cancellationToken);
+                        _logger.LogInformation("⏳ No new unsynced rows found in '{TableName}' for resource '{ResourceType}'",
+                            SafeMessageHelper.Sanitize(tableName), SafeMessageHelper.Sanitize(resourceType));
+                        await Task.Delay(TimeSpan.FromSeconds(180), cancellationToken); // Consider making this configurable
                         return results;
                     }
 
-                    _logger.LogInformation("📥 Found {Count} new rows in '{TableName}' for '{ResourceType}'", rowCount, tableName, resourceType);
+                    _logger.LogInformation("📥 Found {Count} new rows in '{TableName}' for '{ResourceType}'",
+                        rowCount, SafeMessageHelper.Sanitize(tableName), SafeMessageHelper.Sanitize(resourceType));
                 }
 
-                var sql = $"SELECT * FROM {tableName} WHERE extracted_flag = 'N'";
-
+                // Step 2: Select records
+                string dataSql = $"SELECT * FROM {tableName} WHERE extracted_flag = 'N'";
                 await using var command = connection.CreateCommand();
-                command.CommandText = sql;
+                command.CommandText = dataSql;
 
                 await using var reader = await command.ExecuteReaderAsync(cancellationToken);
                 while (await reader.ReadAsync(cancellationToken))
@@ -82,7 +96,6 @@ namespace Ship.Ses.Extractor.Infrastructure.Extraction
                     for (int i = 0; i < reader.FieldCount; i++)
                     {
                         var columnName = reader.GetName(i);
-
                         try
                         {
                             var value = await reader.IsDBNullAsync(i, cancellationToken)
@@ -94,7 +107,7 @@ namespace Ship.Ses.Extractor.Infrastructure.Extraction
                         {
                             _logger.LogError(ex,
                                 "❌ Error reading column '{Column}' at index {Index} in table '{TableName}'. Skipping column.",
-                                columnName, i, tableName);
+                                SafeMessageHelper.Sanitize(columnName), i, SafeMessageHelper.Sanitize(tableName));
                             row[columnName] = null;
                         }
                     }
@@ -102,17 +115,16 @@ namespace Ship.Ses.Extractor.Infrastructure.Extraction
                     results.Add(row);
                 }
 
-                _logger.LogInformation("📦 Extracted {Count} rows from '{TableName}'", results.Count, tableName);
+                _logger.LogInformation("📦 Extracted {Count} rows from '{TableName}'", results.Count, SafeMessageHelper.Sanitize(tableName));
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "❌ Failed to extract from table '{TableName}'", mapping.TableName);
+                _logger.LogError(ex, "❌ Failed to extract from table '{TableName}'", SafeMessageHelper.Sanitize(mapping.TableName));
                 throw;
             }
 
             return results;
         }
-
     }
 
 }

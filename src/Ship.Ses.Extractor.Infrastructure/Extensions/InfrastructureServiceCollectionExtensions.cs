@@ -16,7 +16,6 @@ using Ship.Ses.Extractor.Domain.Shared;
 using Ship.Ses.Extractor.Infrastructure.Configuration;
 using Ship.Ses.Extractor.Infrastructure.Extraction;
 using Ship.Ses.Extractor.Infrastructure.Persistance.Repositories;
-using Ship.Ses.Extractor.Infrastructure.Services;
 using Ship.Ses.Extractor.Infrastructure.Settings;
 using Ship.Ses.Extractor.Infrastructure.Shared;
 using System;
@@ -66,8 +65,8 @@ namespace Ship.Ses.Extractor.Infrastructure.Extensions
 
 
             // Register UI EMR database services
-            services.AddSingleton<EmrDbContextFactory>();
-            services.AddScoped<IEmrDatabaseReader, EmrDatabaseReader>();
+            //services.AddSingleton<EmrDbContextFactory>();
+            //services.AddScoped<IEmrDatabaseReader, EmrDatabaseReader>();
 
             // Register repositories
             services.AddScoped<IMappingRepository, MappingRepository>();
