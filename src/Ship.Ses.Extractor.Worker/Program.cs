@@ -8,7 +8,7 @@ using Ship.Ses.Extractor.Infrastructure.Settings;
 using Ship.Ses.Extractor.Worker.Extensions;
 using Serilog;
 using Ship.Ses.Extractor.Application.Services.Transformers;
-using Ship.Ses.Extractor.Domain.Repositories.Transformer; // Fix for CS1061: Ensure the correct namespace for EF Core is included.
+using Ship.Ses.Extractor.Domain.Repositories.Transformer;
 
 
 Log.Logger = new LoggerConfiguration()
@@ -22,13 +22,12 @@ try
 
     var builder = Host.CreateApplicationBuilder(args);
     // Load strongly-typed settings
-    // ✅ Bind app settings
+    //  Bind app settings
     builder.Services.Configure<AppSettings>(builder.Configuration.GetSection("AppSettings"));
     var appSettings = builder.Configuration.GetSection("AppSettings").Get<AppSettings>()
         ?? throw new Exception("AppSettings section not found.");
 
     builder.Services.Configure<AppSettings>(builder.Configuration.GetSection(nameof(AppSettings)));
-    //builder.Services.Configure<EnvironmentDefaults>(builder.Configuration.GetSection("EnvironmentDefaults"));
     var envDefaults = builder.Configuration.GetSection("EnvironmentDefaults").Get<EnvironmentDefaults>();
     builder.Services.AddSingleton(envDefaults);
    
@@ -44,6 +43,8 @@ try
 
     // Hosted Service (Runner)
     builder.Services.AddHostedService<PatientExtractorWorker>();
+    builder.Services.AddHostedService<EncounterExtractorWorker>();
+
     TemplateBuilders.ConfigureDefaults(envDefaults);
     Log.Information($"environment defaults: {envDefaults.ManagingOrganization}");
 

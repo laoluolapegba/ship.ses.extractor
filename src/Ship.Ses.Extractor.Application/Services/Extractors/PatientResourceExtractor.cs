@@ -20,6 +20,7 @@ using System.Text.Json;
 using Microsoft.Extensions.Configuration;
 using System.Text.RegularExpressions;
 using Fhir.Metrics;
+using Ship.Ses.Extractor.Application.Services.Transformers;
 
 namespace Ship.Ses.Extractor.Application.Services.Extractors
 {
@@ -27,7 +28,9 @@ namespace Ship.Ses.Extractor.Application.Services.Extractors
     {
         private readonly ITableMappingService _mappingService;
         private readonly IDataExtractorService _dataExtractor;
-        private readonly IResourceTransformer<JsonObject> _transformer;
+        private readonly PatientTransformer _transformer;
+
+        //private readonly IResourceTransformer<JsonObject> _transformer;
         private readonly IFhirResourceValidator _validator;
         private readonly IFhirSyncRepository<PatientSyncRecord> _repository;
         private readonly ISyncTrackingRepository _syncTrackingRepository;
@@ -37,7 +40,8 @@ namespace Ship.Ses.Extractor.Application.Services.Extractors
         public PatientResourceExtractor(
             ITableMappingService mappingService,
             IDataExtractorService dataExtractor,
-            IResourceTransformer<JsonObject> transformer,
+            //IResourceTransformer<JsonObject> transformer,
+            PatientTransformer transformer,
             IFhirResourceValidator validator,
             IFhirSyncRepository<PatientSyncRecord> repository,
             ISyncTrackingRepository syncTrackingRepository,

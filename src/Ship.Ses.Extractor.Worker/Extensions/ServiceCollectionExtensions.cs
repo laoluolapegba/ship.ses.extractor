@@ -1,4 +1,5 @@
-﻿using Ship.Ses.Extractor.Application.Services.Extractors;
+﻿using Hl7.Fhir.Model.CdsHooks;
+using Ship.Ses.Extractor.Application.Services.Extractors;
 using Ship.Ses.Extractor.Application.Services.Transformers;
 using Ship.Ses.Extractor.Application.Services.Validators;
 using Ship.Ses.Extractor.Domain.Repositories.Transformer;
@@ -29,8 +30,10 @@ namespace Ship.Ses.Extractor.Worker.Extensions
             services.AddScoped<FhirValidatorService>();
 
             services.AddSingleton<IResourceTransformer<JsonObject>, PatientTransformer>();
+            services.AddSingleton<IResourceTransformer<JsonObject>, EncounterTransformer>();
             // Orchestrator
             services.AddScoped<PatientResourceExtractor>();
+            services.AddScoped<EncounterResourceExtractor>();
 
             return services;
         }

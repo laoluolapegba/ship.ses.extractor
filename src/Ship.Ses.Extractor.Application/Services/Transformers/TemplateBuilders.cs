@@ -915,7 +915,124 @@ namespace Ship.Ses.Extractor.Application.Services.Transformers
                 obj[newKey] = val;
             }
         }
+        ///encounter methods start here
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="fhir"></param>
+        /// <param name="field"></param>
+        /// <param name="row"></param>
+        /// <param name="logger"></param>
+        public static void ApplyPeriod(JsonObject fhir, FieldMapping field, IDictionary<string, object> row, ILogger logger)
+        {
+            logger.LogInformation("📆 Applying Period template to {FhirPath}", field.FhirPath);
 
+            var period = new JsonObject();
 
+            if (field.EmrFieldMap != null)
+            {
+                if (field.EmrFieldMap.TryGetValue("start", out var startField) &&
+                    row.TryGetValue(startField, out var startVal) &&
+                    DateTime.TryParse(startVal?.ToString(), out var startTime))
+                {
+                    period["start"] = JsonValue.Create(startTime.ToString("yyyy-MM-ddTHH:mm:ssZ"));
+                }
+
+                if (field.EmrFieldMap.TryGetValue("end", out var endField) &&
+                    row.TryGetValue(endField, out var endVal) &&
+                    DateTime.TryParse(endVal?.ToString(), out var endTime))
+                {
+                    period["end"] = JsonValue.Create(endTime.ToString("yyyy-MM-ddTHH:mm:ssZ"));
+                }
+            }
+
+            if (period.Count == 0)
+            {
+                logger.LogWarning("⚠️ No valid start/end values for period at {FhirPath}", field.FhirPath);
+                return;
+            }
+
+            FhirJsonHelper.SetFhirValue(fhir, field.FhirPath, period, logger);
+        }
+
+        public static void ApplyParticipant(JsonObject fhir, FieldMapping field, IDictionary<string, object> row, ILogger logger)
+        {
+            logger.LogInformation("👤 Applying participant template to {FhirPath}", field.FhirPath);
+
+            var participant = new JsonObject();
+
+            var typeCoding = new JsonObject();
+            if (field.EmrFieldMap?.TryGetValue("participant_type_code", out var typeCodeField) == true &&
+                row.TryGetValue(typeCodeField, out var typeCodeVal))
+            {
+                typeCoding["code"] = JsonValue.Create(typeCodeVal?.ToString());
+                typeCoding["system"] = JsonValue.Create("http://terminology.hl7.org/CodeSystem/participant-type");
+            }
+
+            if (field.EmrFieldMap?.TryGetValue("participant_type_display", out var typeDisplayField) == true &&
+                row.TryGetValue(typeDisplayField, out var typeDisplayVal))
+            {
+                typeCoding["display"] = JsonValue.Create(typeDisplayVal?.ToString());
+            }
+
+            if (typeCoding.Count > 0)
+            {
+                participant["type"] = new JsonArray
+            {
+                new JsonObject
+                {
+                    ["coding"] = new JsonArray { typeCoding }
+                }
+            };
+            }
+
+            if (field.EmrFieldMap?.TryGetValue("practitioner_id", out var individualField) == true &&
+                row.TryGetValue(individualField, out var individualId) && !string.IsNullOrWhiteSpace(individualId?.ToString()))
+            {
+                participant["individual"] = new JsonObject
+                {
+                    ["reference"] = JsonValue.Create($"Practitioner/{individualId}")
+                };
+            }
+
+            FhirJsonHelper.SetFhirValue(fhir, field.FhirPath, participant, logger);
+        }
+        public static void ApplyDiagnosis(JsonObject fhir, FieldMapping field, IDictionary<string, object> row, ILogger logger)
+        {
+            logger.LogInformation("🩺 Applying diagnosis template to {FhirPath}", field.FhirPath);
+
+            var diagnosisEntry = new JsonObject();
+            var conditionRef = row.TryGetValue("condition_id", out var condId) ? condId?.ToString() : null;
+
+            if (!string.IsNullOrWhiteSpace(conditionRef))
+            {
+                diagnosisEntry["condition"] = new JsonObject
+                {
+                    ["reference"] = JsonValue.Create($"Condition/{conditionRef}")
+                };
+            }
+
+            if (row.TryGetValue("rank", out var rank) && int.TryParse(rank?.ToString(), out var rankVal))
+            {
+                diagnosisEntry["rank"] = JsonValue.Create(rankVal);
+            }
+
+            if (field.Defaults != null && field.Defaults.TryGetValue("use", out var useCode))
+            {
+                diagnosisEntry["use"] = new JsonObject
+                {
+                    ["coding"] = new JsonArray
+                {
+                    new JsonObject
+                    {
+                        ["system"] = "http://terminology.hl7.org/CodeSystem/diagnosis-role",
+                        ["code"] = JsonValue.Create(useCode?.ToString())
+                    }
+                }
+                };
+            }
+
+            FhirJsonHelper.SetFhirValue(fhir, field.FhirPath, diagnosisEntry, logger);
+        }
     }
 }

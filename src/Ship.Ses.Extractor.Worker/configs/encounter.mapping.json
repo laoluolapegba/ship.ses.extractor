@@ -1,0 +1,71 @@
+﻿{
+    "resourceType": "Encounter",
+    "tableName": "encounters",
+    "idColumn": "encounter_id",
+    "fields": {
+        "id": { "source": "encounter_id" },
+        "status": { "source": "status" },
+        "class": {
+            "source": "encounter_class",
+            "system": "http://terminology.hl7.org/CodeSystem/v3-ActCode"
+        },
+        "type": [
+            {
+                "coding": [
+                    {
+                        "system": "http://snomed.info/sct",
+                        "code": { "source": "type_code" },
+                        "display": { "source": "type_display" }
+                    }
+                ]
+            }
+        ],
+        "subject": {
+            "reference": {
+                "template": "Patient/{patient_id}"
+            }
+        },
+        "period": {
+            "template": "period",
+            "emrFieldMap": {
+                "start": "start_date",
+                "end": "end_date"
+            }
+        },
+        "location": [
+            {
+                "location": {
+                    "reference": {
+                        "template": "Location/{location_id}"
+                    }
+                }
+            }
+        ],
+        "participant": {
+            "template": "participant",
+            "emrFieldMap": {
+                "practitioner_id": "practitioner_id",
+                "participant_type_code": "participant_type_code",
+                "participant_type_display": "participant_type_display"
+            }
+        },
+        "diagnosis": {
+            "template": "diagnosis",
+            "emrFieldMap": {
+                "condition_id": "condition_id",
+                "rank": "rank"
+            },
+            "defaults": {
+                "use": "admitting"
+            }
+        },
+        "serviceProvider": {
+            "reference": {
+                "template": "Organization/{facility_id}"
+            }
+        },
+        "meta": {
+            "lastUpdated": { "source": "created_at" }
+        }
+    }
+}
