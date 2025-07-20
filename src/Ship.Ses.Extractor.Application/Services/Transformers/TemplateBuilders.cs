@@ -1034,5 +1034,37 @@ namespace Ship.Ses.Extractor.Application.Services.Transformers
 
             FhirJsonHelper.SetFhirValue(fhir, field.FhirPath, diagnosisEntry, logger);
         }
+
+        ///observation
+        public static void ApplyQuantity(JsonObject fhir, FieldMapping field, IDictionary<string, object> row, ILogger logger)
+        {
+            logger.LogInformation("⚖️ Applying Quantity template to {FhirPath}", field.FhirPath);
+
+            if (field.EmrFieldMap == null ||
+                !field.EmrFieldMap.TryGetValue("value", out var valueField) ||
+                !field.EmrFieldMap.TryGetValue("unit", out var unitField))
+            {
+                logger.LogWarning("⚠️ Missing value/unit fields in EmrFieldMap for quantity at {FhirPath}", field.FhirPath);
+                return;
+            }
+
+            if (!row.TryGetValue(valueField, out var valueObj) || valueObj == null)
+            {
+                logger.LogWarning("⚠️ Value field '{ValueField}' is missing or null", valueField);
+                return;
+            }
+
+            var quantity = new JsonObject
+            {
+                ["value"] = JsonValue.Create(valueObj.ToString())
+            };
+
+            if (row.TryGetValue(unitField, out var unitObj) && unitObj != null)
+            {
+                quantity["unit"] = JsonValue.Create(unitObj.ToString());
+            }
+
+            FhirJsonHelper.SetFhirValue(fhir, field.FhirPath, quantity, logger);
+        }
     }
 }

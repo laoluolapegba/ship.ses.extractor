@@ -1,0 +1,65 @@
+﻿{
+    "resourceType": "Observation",
+    "tableName": "observations",
+    "idColumn": "observation_id",
+    "fields": {
+        "id": {
+            "source": "observation_id"
+        },
+        "status": {
+            "source": "status"
+        },
+        "category": [
+            {
+                "coding": [
+                    {
+                        "system": "http://terminology.hl7.org/CodeSystem/observation-category",
+                        "code": {
+                            "source": "category_code"
+                        },
+                        "display": {
+                            "source": "category_display"
+                        }
+                    }
+                ]
+            }
+        ],
+        "code": {
+            "coding": [
+                {
+                    "system": "http://loinc.org",
+                    "code": {
+                        "source": "code"
+                    },
+                    "display": {
+                        "source": "display"
+                    }
+                }
+            ],
+            "text": {
+                "source": "display"
+            }
+        },
+        "subject": {
+            "reference": {
+                "template": "Patient/{patient_id}"
+            }
+        },
+        "effectiveDateTime": {
+            "source": "effective_datetime",
+            "dataType": "datetime"
+        },
+        "valueQuantity": {
+            "template": "quantity",
+            "emrFieldMap": {
+                "value": "value_quantity",
+                "unit": "unit"
+            }
+        },
+        "meta": {
+            "lastUpdated": {
+                "source": "created_at"
+            }
+        }
+    }
+}

@@ -1,14 +1,14 @@
-﻿using Ship.Ses.Extractor.Domain.Repositories.Extractor;
-using Ship.Ses.Extractor.Domain.Shared;
-using Ship.Ses.Extractor.Infrastructure.Persistance.Contexts;
-using Ship.Ses.Extractor.Worker;
+﻿using Hl7.Fhir.Model.CdsHooks;
 using Microsoft.EntityFrameworkCore;
-using Ship.Ses.Extractor.Infrastructure.Settings;
-
-using Ship.Ses.Extractor.Worker.Extensions;
 using Serilog;
 using Ship.Ses.Extractor.Application.Services.Transformers;
+using Ship.Ses.Extractor.Domain.Repositories.Extractor;
 using Ship.Ses.Extractor.Domain.Repositories.Transformer;
+using Ship.Ses.Extractor.Domain.Shared;
+using Ship.Ses.Extractor.Infrastructure.Persistance.Contexts;
+using Ship.Ses.Extractor.Infrastructure.Settings;
+using Ship.Ses.Extractor.Worker;
+using Ship.Ses.Extractor.Worker.Extensions;
 
 
 Log.Logger = new LoggerConfiguration()
@@ -44,6 +44,7 @@ try
     // Hosted Service (Runner)
     builder.Services.AddHostedService<PatientExtractorWorker>();
     builder.Services.AddHostedService<EncounterExtractorWorker>();
+    builder.Services.AddHostedService<ObservationExtractorWorker>();
 
     TemplateBuilders.ConfigureDefaults(envDefaults);
     Log.Information($"environment defaults: {envDefaults.ManagingOrganization}");

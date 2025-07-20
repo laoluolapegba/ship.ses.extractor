@@ -1,0 +1,61 @@
+﻿{
+    "resourceType": "Condition",
+    "tableName": "conditions",
+    "idColumn": "condition_id",
+    "fields": [
+        {
+            "fhirPath": "id",
+            "emrField": "condition_id"
+        },
+        {
+            "fhirPath": "subject",
+            "template": "reference",
+            "defaults": {
+                "reference": "Patient/{patient_id}"
+            }
+        },
+        {
+            "fhirPath": "code",
+            "template": "codeableConcept",
+            "emrField": "code",
+            "valueSet": {
+                "system": "http://snomed.info/sct",
+                "displayMap": {
+                    "E11": "Type 2 diabetes mellitus",
+                    "I10": "Essential (primary) hypertension"
+                }
+            }
+        },
+        {
+            "fhirPath": "clinicalStatus",
+            "template": "codeableConcept",
+            "emrField": "clinical_status",
+            "valueSet": {
+                "system": "http://terminology.hl7.org/CodeSystem/condition-clinical",
+                "displayMap": {
+                    "active": "Active",
+                    "resolved": "Resolved"
+                }
+            }
+        },
+        {
+            "fhirPath": "verificationStatus",
+            "template": "codeableConcept",
+            "emrField": "verification_status",
+            "valueSet": {
+                "system": "http://terminology.hl7.org/CodeSystem/condition-ver-status",
+                "displayMap": {
+                    "confirmed": "Confirmed",
+                    "unconfirmed": "Unconfirmed"
+                }
+            }
+        },
+        {
+            "fhirPath": "onsetDateTime",
+            "emrField": "onset_date",
+            "dataType": "date"
+        },
+        {
+            "fhirPath": "recordedDate",
+            "emrField": "recorded_date",
+            "da
