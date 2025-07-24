@@ -58,4 +58,12 @@
         {
             "fhirPath": "recordedDate",
             "emrField": "recorded_date",
-            "da
+            "dataType": "date"
+        },
+        {
+            "fhirPath": "meta.lastUpdated",
+            "emrField": "created_at",
+            "dataType": "datetime"
+        }
+    ]
+}

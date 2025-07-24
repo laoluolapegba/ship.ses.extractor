@@ -14,11 +14,10 @@ using Ship.Ses.Extractor.Worker.Extensions;
 Log.Logger = new LoggerConfiguration()
     .ReadFrom.Configuration(Host.CreateApplicationBuilder().Configuration)
     .Enrich.FromLogContext()
-    .WriteTo.Console()
     .CreateLogger();
 try
 {
-    Log.Information("Starting Ship Extractor Worker...");
+    Log.Information("Starting Ship Extractor program...");
 
     var builder = Host.CreateApplicationBuilder(args);
     // Load strongly-typed settings
@@ -43,8 +42,8 @@ try
 
     // Hosted Service (Runner)
     builder.Services.AddHostedService<PatientExtractorWorker>();
-    builder.Services.AddHostedService<EncounterExtractorWorker>();
-    builder.Services.AddHostedService<ObservationExtractorWorker>();
+    //builder.Services.AddHostedService<EncounterExtractorWorker>();
+    //builder.Services.AddHostedService<ObservationExtractorWorker>();
 
     TemplateBuilders.ConfigureDefaults(envDefaults);
     Log.Information($"environment defaults: {envDefaults.ManagingOrganization}");

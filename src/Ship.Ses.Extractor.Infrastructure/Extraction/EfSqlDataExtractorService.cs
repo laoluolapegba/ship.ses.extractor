@@ -27,7 +27,7 @@ namespace Ship.Ses.Extractor.Infrastructure.Extraction
         }
         private static readonly HashSet<string> AllowedTableNames = new()
         {
-            "patient", "encounter", "lab_results" 
+            "patients", "encounter", "lab_results" 
         };
         public async Task<IEnumerable<IDictionary<string, object>>> ExtractAsync(TableMapping mapping, CancellationToken cancellationToken = default)
         {

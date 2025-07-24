@@ -7,6 +7,9 @@ using Ship.Ses.Extractor.Application.Services.DataMapping;
 using Ship.Ses.Extractor.Application.Services.Extractors;
 using Ship.Ses.Extractor.Application.Services.Transformers;
 using Ship.Ses.Extractor.Application.Services.Validators;
+using Ship.Ses.Extractor.Domain.Entities.Condition;
+using Ship.Ses.Extractor.Domain.Entities.Encounter;
+using Ship.Ses.Extractor.Domain.Entities.Observation;
 using Ship.Ses.Extractor.Domain.Entities.Patients;
 using Ship.Ses.Extractor.Domain.Repositories.DataMapping;
 using Ship.Ses.Extractor.Domain.Repositories.Extractor;
@@ -62,8 +65,9 @@ namespace Ship.Ses.Extractor.Infrastructure.Extensions
             services.AddScoped<ISyncTrackingRepository, SyncTrackingRepository>();
             services.AddSingleton<IResourceTransformer<System.Text.Json.Nodes.JsonObject>, PatientTransformer>();
             services.AddScoped<IFhirSyncRepository<PatientSyncRecord>, MongoFhirSyncRepository<PatientSyncRecord>>();
-
-
+            services.AddScoped<IFhirSyncRepository<EncounterSyncRecord>, MongoFhirSyncRepository<EncounterSyncRecord>>();
+            services.AddScoped<IFhirSyncRepository<ConditionSyncRecord>, MongoFhirSyncRepository<ConditionSyncRecord>>();
+            services.AddScoped<IFhirSyncRepository<ObservationSyncRecord>, MongoFhirSyncRepository<ObservationSyncRecord>>();
             // Register UI EMR database services
             //services.AddSingleton<EmrDbContextFactory>();
             //services.AddScoped<IEmrDatabaseReader, EmrDatabaseReader>();

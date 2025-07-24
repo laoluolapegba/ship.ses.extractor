@@ -32,7 +32,7 @@ namespace Ship.Ses.Extractor.Worker
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            _logger.LogInformation("🚀 Starting Patient Extractor Worker...");
+            _logger.LogInformation("Starting Patient Extractor Worker...");
 
             while (!stoppingToken.IsCancellationRequested)
             {
@@ -41,7 +41,7 @@ namespace Ship.Ses.Extractor.Worker
                     using var scope = _scopeFactory.CreateScope();
                     var extractor = scope.ServiceProvider.GetRequiredService<PatientResourceExtractor>();
                     await extractor.ExtractAndPersistAsync(stoppingToken);
-                    _logger.LogInformation("✅ Patient extraction completed");
+                    _logger.LogInformation("Patient extraction completed");
                 }
                 catch (Exception ex)
                 {
