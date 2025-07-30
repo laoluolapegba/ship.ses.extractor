@@ -34,8 +34,8 @@ namespace Ship.Ses.Extractor.Worker
                 try
                 {
                     using var scope = _scopeFactory.CreateScope();
-                    var extractor = scope.ServiceProvider.GetRequiredService<ObservationResourceExtractor>();
-                    await extractor.ExtractAndPersistAsync(stoppingToken);
+                    //var extractor = scope.ServiceProvider.GetRequiredService<ObservationResourceExtractor>();
+                    //await extractor.ExtractAndPersistAsync(stoppingToken);
                     _logger.LogInformation("✅ Observation extraction completed");
                 }
                 catch (Exception ex)

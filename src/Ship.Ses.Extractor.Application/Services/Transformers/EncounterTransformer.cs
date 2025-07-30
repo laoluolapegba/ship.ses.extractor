@@ -27,7 +27,7 @@ namespace Ship.Ses.Extractor.Application.Services.Transformers
                 ["resourceType"] = mapping.ResourceType
             };
 
-            foreach (var field in mapping.Fields)
+            foreach (var field in mapping.FieldsUntyped)
             {
                 if (!string.IsNullOrWhiteSpace(field.Template))
                 {

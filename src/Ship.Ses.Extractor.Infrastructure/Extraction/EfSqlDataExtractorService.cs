@@ -29,6 +29,7 @@ namespace Ship.Ses.Extractor.Infrastructure.Extraction
         {
             "patients", "encounter", "lab_results" 
         };
+        
         public async Task<IEnumerable<IDictionary<string, object>>> ExtractAsync(TableMapping mapping, CancellationToken cancellationToken = default)
         {
             var results = new List<IDictionary<string, object>>();
@@ -125,6 +126,101 @@ WHERE s.source_id IS NULL AND p.extracted_flag = 'N'";
 
             return results;
         }
+
+        //        public async Task<IEnumerable<IDictionary<string, object>>> ExtractAsync<TField>(TableMapping<TField> mapping, CancellationToken cancellationToken = default)
+        //        {
+        //            var results = new List<IDictionary<string, object>>();
+        //            var tableName = mapping.TableName;
+        //            var resourceType = mapping.ResourceType;
+        //            var sourceIdColumn = "patient_id"; // Todo: make configurable per resource
+
+        //            if (!AllowedTableNames.Contains(tableName))
+        //            {
+        //                _logger.LogWarning("⛔ Attempt to access disallowed table: {TableName}", SafeMessageHelper.Sanitize(tableName));
+        //                throw new SecurityException($"Table '{tableName}' is not allowed.");
+        //            }
+
+        //            string countSql = $@"
+        //SELECT COUNT(*) 
+        //FROM {tableName} p
+        //LEFT JOIN ses_extract_tracking s 
+        //    ON s.resource_type = @ResourceType AND s.source_id = p.{sourceIdColumn}
+        //WHERE s.source_id IS NULL AND p.extracted_flag = 'N'";
+
+        //            try
+        //            {
+        //                await using var connection = _context.Database.GetDbConnection();
+        //                if (connection.State != ConnectionState.Open)
+        //                {
+        //                    await connection.OpenAsync(cancellationToken);
+        //                    _logger.LogDebug("🔌 Opened database connection to {DataSource}", SafeMessageHelper.Sanitize(connection.DataSource));
+        //                }
+
+        //                await using (var countCmd = connection.CreateCommand())
+        //                {
+        //                    countCmd.CommandText = countSql;
+
+        //                    var param = countCmd.CreateParameter();
+        //                    param.ParameterName = "@ResourceType";
+        //                    param.Value = resourceType;
+        //                    countCmd.Parameters.Add(param);
+
+        //                    var countResult = await countCmd.ExecuteScalarAsync(cancellationToken);
+        //                    int rowCount = Convert.ToInt32(countResult);
+
+        //                    if (rowCount == 0)
+        //                    {
+        //                        _logger.LogInformation("⏳ No new unsynced rows found in '{TableName}' for resource '{ResourceType}'",
+        //                            SafeMessageHelper.Sanitize(tableName), SafeMessageHelper.Sanitize(resourceType));
+        //                        await Task.Delay(TimeSpan.FromSeconds(180), cancellationToken);
+        //                        return results;
+        //                    }
+
+        //                    _logger.LogInformation("📥 Found {Count} new rows in '{TableName}' for '{ResourceType}'",
+        //                        rowCount, SafeMessageHelper.Sanitize(tableName), SafeMessageHelper.Sanitize(resourceType));
+        //                }
+
+        //                string dataSql = $"SELECT * FROM {tableName} WHERE extracted_flag = 'N'";
+        //                await using var command = connection.CreateCommand();
+        //                command.CommandText = dataSql;
+
+        //                await using var reader = await command.ExecuteReaderAsync(cancellationToken);
+        //                while (await reader.ReadAsync(cancellationToken))
+        //                {
+        //                    var row = new Dictionary<string, object>();
+
+        //                    for (int i = 0; i < reader.FieldCount; i++)
+        //                    {
+        //                        var columnName = reader.GetName(i);
+        //                        try
+        //                        {
+        //                            var value = await reader.IsDBNullAsync(i, cancellationToken)
+        //                                ? null
+        //                                : reader.GetValue(i);
+        //                            row[columnName] = value;
+        //                        }
+        //                        catch (Exception ex)
+        //                        {
+        //                            _logger.LogError(ex,
+        //                                "❌ Error reading column '{Column}' at index {Index} in table '{TableName}'. Skipping column.",
+        //                                SafeMessageHelper.Sanitize(columnName), i, SafeMessageHelper.Sanitize(tableName));
+        //                            row[columnName] = null;
+        //                        }
+        //                    }
+
+        //                    results.Add(row);
+        //                }
+
+        //                _logger.LogInformation("📦 Extracted {Count} rows from '{TableName}'", results.Count, SafeMessageHelper.Sanitize(tableName));
+        //            }
+        //            catch (Exception ex)
+        //            {
+        //                _logger.LogError(ex, "❌ Failed to extract from table '{TableName}'", SafeMessageHelper.Sanitize(mapping.TableName));
+        //                throw;
+        //            }
+
+        //            return results;
+        //        }
     }
 
 }

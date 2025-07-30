@@ -113,7 +113,7 @@ namespace Ship.Ses.Extractor.Infrastructure.Configuration
                     throw new InvalidOperationException(
                         $"❌ The mapping for FHIR path '{field.FhirPath}' in '{fileName}' has no 'emrField', is not a constant, and is not marked for empty string.");
                 }
-                
+
 
                 if (string.IsNullOrWhiteSpace(field.FhirPath))
                     throw new InvalidOperationException($"A field in '{fileName}' has an empty 'fhirPath'");

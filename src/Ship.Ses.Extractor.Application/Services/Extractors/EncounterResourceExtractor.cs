@@ -1,7 +1,13 @@
-﻿using MongoDB.Bson;
+﻿using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
+using MongoDB.Bson;
+using Serilog.Context;
 using Ship.Ses.Extractor.Application.Services;
+using Ship.Ses.Extractor.Application.Services.Transformers;
+using Ship.Ses.Extractor.Domain.Entities.Condition;
 using Ship.Ses.Extractor.Domain.Entities.Encounter;
 using Ship.Ses.Extractor.Domain.Entities.Extractor;
+using Ship.Ses.Extractor.Domain.Models.Extractor;
 using Ship.Ses.Extractor.Domain.Repositories.Extractor;
 using Ship.Ses.Extractor.Domain.Repositories.Transformer;
 using Ship.Ses.Extractor.Domain.Repositories.Validator;
@@ -9,14 +15,10 @@ using Ship.Ses.Extractor.Domain.Shared;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Text.Json.Nodes;
-using Serilog.Context;
 using System.Security.Cryptography;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Configuration;
-using Ship.Ses.Extractor.Application.Services.Transformers;
+using System.Text;
+using System.Text.Json.Nodes;
+using System.Threading.Tasks;
 
 namespace Ship.Ses.Extractor.Application.Services.Extractors
 {
@@ -79,7 +81,14 @@ namespace Ship.Ses.Extractor.Application.Services.Extractors
             {
                 _logger.LogInformation("Started encounter extraction with CorrelationId {CorrelationId}", correlationId);
 
-                var mapping = await _mappingService.GetMappingForResourceAsync("Encounter", cancellationToken);
+                //var mapping = await _mappingService.GetMappingForResourceAsync("Encounter", cancellationToken);
+                var typedMapping = await _mappingService.GetTypedMappingForResourceAsync<EncounterFieldMapping>("Encounter", cancellationToken);
+                if (typedMapping == null)
+                {
+                    _logger.LogError("Encounter mapping not found");
+                    return;
+                }
+                TableMapping mapping = typedMapping;
                 var rawRows = await _dataExtractor.ExtractAsync(mapping, cancellationToken);
                 _logger.LogInformation("Extracted {Count} encounter rows from {Table}", rawRows.Count(), mapping.TableName);
 

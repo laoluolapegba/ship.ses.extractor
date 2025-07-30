@@ -20,7 +20,6 @@ using System.Text.Json;
 using Microsoft.Extensions.Configuration;
 using System.Text.RegularExpressions;
 using Fhir.Metrics;
-using Ship.Ses.Extractor.Application.Services.Transformers;
 
 namespace Ship.Ses.Extractor.Application.Services.Extractors
 {
@@ -28,9 +27,7 @@ namespace Ship.Ses.Extractor.Application.Services.Extractors
     {
         private readonly ITableMappingService _mappingService;
         private readonly IDataExtractorService _dataExtractor;
-        private readonly PatientTransformer _transformer;
-
-        //private readonly IResourceTransformer<JsonObject> _transformer;
+        private readonly IResourceTransformer<JsonObject> _transformer;
         private readonly IFhirResourceValidator _validator;
         private readonly IFhirSyncRepository<PatientSyncRecord> _repository;
         private readonly ISyncTrackingRepository _syncTrackingRepository;
@@ -40,8 +37,7 @@ namespace Ship.Ses.Extractor.Application.Services.Extractors
         public PatientResourceExtractor(
             ITableMappingService mappingService,
             IDataExtractorService dataExtractor,
-            //IResourceTransformer<JsonObject> transformer,
-            PatientTransformer transformer,
+            IResourceTransformer<JsonObject> transformer,
             IFhirResourceValidator validator,
             IFhirSyncRepository<PatientSyncRecord> repository,
             ISyncTrackingRepository syncTrackingRepository,
@@ -141,7 +137,7 @@ namespace Ship.Ses.Extractor.Application.Services.Extractors
                                 ErrorMessage = errorMessage,
                                 CreatedAt = DateTime.UtcNow,
                                 LastAttemptAt = DateTime.UtcNow,
-                               
+
                             }, cancellationToken);
 
                             continue; // Skip persistence
@@ -186,7 +182,7 @@ namespace Ship.Ses.Extractor.Application.Services.Extractors
                             _logger.LogInformation("Successfully persisted record {SourceId}", sourceId);
                         }
 
-                       
+
 
                         await _syncTrackingRepository.AddOrUpdateAsync(tracking, cancellationToken);
                     }

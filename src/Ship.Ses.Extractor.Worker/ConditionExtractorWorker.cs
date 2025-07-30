@@ -33,8 +33,8 @@ namespace Ship.Ses.Extractor.Worker
                 try
                 {
                     using var scope = _scopeFactory.CreateScope();
-                    var extractor = scope.ServiceProvider.GetRequiredService<ConditionResourceExtractor>();
-                    await extractor.ExtractAndPersistAsync(stoppingToken);
+                    //var extractor = scope.ServiceProvider.GetRequiredService<ConditionResourceExtractor>();
+                    //await extractor.ExtractAndPersistAsync(stoppingToken);
                     _logger.LogInformation("✅ Condition extraction completed");
                 }
                 catch (Exception ex)

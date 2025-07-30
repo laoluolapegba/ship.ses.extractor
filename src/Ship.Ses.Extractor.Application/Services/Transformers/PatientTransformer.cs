@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
+using Ship.Ses.Extractor.Domain.Entities.Patients;
 using Ship.Ses.Extractor.Domain.Models.Extractor;
 using Ship.Ses.Extractor.Domain.Repositories.Transformer;
 using System;
@@ -18,7 +19,7 @@ namespace Ship.Ses.Extractor.Application.Services.Transformers
         {
             _logger = logger;
         }
-
+        //public JsonObject Transform(IDictionary<string, object> row, TableMapping<PatientFieldMapping> mapping, List<string> errors)
         public JsonObject Transform(IDictionary<string, object> row, TableMapping mapping, List<string> errors)
         {
             var fhir = new JsonObject

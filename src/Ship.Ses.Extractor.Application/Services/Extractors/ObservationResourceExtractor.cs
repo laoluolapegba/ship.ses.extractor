@@ -1,21 +1,23 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Microsoft.Extensions.Configuration;
+﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using MongoDB.Bson;
+using Serilog.Context;
 using Ship.Ses.Extractor.Application.Services.Transformers;
+using Ship.Ses.Extractor.Domain.Entities.Condition;
 using Ship.Ses.Extractor.Domain.Entities.Extractor;
+using Ship.Ses.Extractor.Domain.Entities.Observation;
+using Ship.Ses.Extractor.Domain.Models.Extractor;
 using Ship.Ses.Extractor.Domain.Repositories.Extractor;
 using Ship.Ses.Extractor.Domain.Repositories.Transformer;
 using Ship.Ses.Extractor.Domain.Repositories.Validator;
 using Ship.Ses.Extractor.Domain.Shared;
-using System.Text.Json.Nodes;
-using Ship.Ses.Extractor.Domain.Entities.Observation;
-using Serilog.Context;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Security.Cryptography;
+using System.Text;
+using System.Text.Json.Nodes;
+using System.Threading.Tasks;
 namespace Ship.Ses.Extractor.Application.Services.Extractors
 {
 
@@ -76,7 +78,14 @@ namespace Ship.Ses.Extractor.Application.Services.Extractors
             {
                 _logger.LogInformation("📊 Starting Observation extraction... [{CorrelationId}]", correlationId);
 
-                var mapping = await _mappingService.GetMappingForResourceAsync("Observation", cancellationToken);
+                //var mapping = await _mappingService.GetMappingForResourceAsync("Observation", cancellationToken);
+                var typedMapping = await _mappingService.GetTypedMappingForResourceAsync<ObservationFieldMapping>("Observation", cancellationToken);
+                if (typedMapping == null)
+                {
+                    _logger.LogError("Observation mapping not found");
+                    return;
+                }
+                TableMapping mapping = typedMapping;
                 var rawRows = await _dataExtractor.ExtractAsync(mapping, cancellationToken);
 
                 _logger.LogInformation("Extracted {Count} observation rows from {Table}", rawRows.Count(), mapping.TableName);

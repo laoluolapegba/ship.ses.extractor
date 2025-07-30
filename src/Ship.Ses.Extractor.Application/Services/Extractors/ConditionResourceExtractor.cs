@@ -5,6 +5,8 @@ using Serilog.Context;
 using Ship.Ses.Extractor.Application.Services.Transformers;
 using Ship.Ses.Extractor.Domain.Entities.Condition;
 using Ship.Ses.Extractor.Domain.Entities.Extractor;
+using Ship.Ses.Extractor.Domain.Entities.Patients;
+using Ship.Ses.Extractor.Domain.Models.Extractor;
 using Ship.Ses.Extractor.Domain.Repositories.Extractor;
 using Ship.Ses.Extractor.Domain.Repositories.Transformer;
 using Ship.Ses.Extractor.Domain.Repositories.Validator;
@@ -71,7 +73,14 @@ namespace Ship.Ses.Extractor.Application.Services.Extractors
             {
                 _logger.LogInformation("🩺 Starting Condition extraction... [{CorrelationId}]", correlationId);
 
-                var mapping = await _mappingService.GetMappingForResourceAsync("Condition", cancellationToken);
+                //var mapping = await _mappingService.GetMappingForResourceAsync("Condition", cancellationToken);
+                var typedMapping = await _mappingService.GetTypedMappingForResourceAsync<ConditionFieldMapping>("Condition", cancellationToken);
+                if (typedMapping == null)
+                {
+                    _logger.LogError("❌ No mapping found for resource type 'Condition'");
+                    return;
+                }
+                TableMapping mapping = typedMapping;
                 var rawRows = await _dataExtractor.ExtractAsync(mapping, cancellationToken);
 
                 _logger.LogInformation("Extracted {Count} condition rows from {Table}", rawRows.Count(), mapping.TableName);

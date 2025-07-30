@@ -1,7 +1,6 @@
 ﻿using Hl7.Fhir.Model;
 using Hl7.Fhir.Serialization;
 using Microsoft.Extensions.Logging;
-using Ship.Ses.Extractor.Application.DTOs;
 using Ship.Ses.Extractor.Domain.Repositories.Validator;
 using System;
 using System.Collections.Generic;

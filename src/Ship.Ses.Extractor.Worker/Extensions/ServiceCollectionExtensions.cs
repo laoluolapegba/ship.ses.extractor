@@ -29,18 +29,16 @@ namespace Ship.Ses.Extractor.Worker.Extensions
             // Register the FhirProcessingService (it depends on IFhirResourceValidator)
             services.AddScoped<FhirValidatorService>();
 
-            //services.AddSingleton<IResourceTransformer<JsonObject>, PatientTransformer>();
-            //services.AddSingleton<IResourceTransformer<JsonObject>, EncounterTransformer>();
-            services.AddSingleton<EncounterTransformer>();
+            //services.AddSingleton<EncounterTransformer>();
             services.AddSingleton<PatientTransformer>();
-            services.AddSingleton<ObservationTransformer>();
-            services.AddSingleton<ConditionTransformer>();
+            //services.AddSingleton<ObservationTransformer>();
+            //services.AddSingleton<ConditionTransformer>();
 
             // Orchestrator
             services.AddScoped<PatientResourceExtractor>();
-            services.AddScoped<EncounterResourceExtractor>();
-            services.AddScoped<ObservationResourceExtractor>();
-            services.AddScoped<ConditionResourceExtractor>();
+            //services.AddScoped<EncounterResourceExtractor>();
+            //services.AddScoped<ObservationResourceExtractor>();
+            //services.AddScoped<ConditionResourceExtractor>();
             return services;
         }
     }

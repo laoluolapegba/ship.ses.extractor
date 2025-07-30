@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using Hl7.Fhir.Model.CdsHooks;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using MongoDB.Driver;
@@ -23,6 +24,7 @@ using Ship.Ses.Extractor.Infrastructure.Settings;
 using Ship.Ses.Extractor.Infrastructure.Shared;
 using System;
 using System.Collections.Generic;
+using System.Json;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -64,6 +66,7 @@ namespace Ship.Ses.Extractor.Infrastructure.Extensions
             services.AddScoped<IDataExtractorService, EfSqlDataExtractorService>();
             services.AddScoped<ISyncTrackingRepository, SyncTrackingRepository>();
             services.AddSingleton<IResourceTransformer<System.Text.Json.Nodes.JsonObject>, PatientTransformer>();
+            //services.AddSingleton<IResourceTransformer<PatientFieldMapping>, PatientTransformer>();
             services.AddScoped<IFhirSyncRepository<PatientSyncRecord>, MongoFhirSyncRepository<PatientSyncRecord>>();
             services.AddScoped<IFhirSyncRepository<EncounterSyncRecord>, MongoFhirSyncRepository<EncounterSyncRecord>>();
             services.AddScoped<IFhirSyncRepository<ConditionSyncRecord>, MongoFhirSyncRepository<ConditionSyncRecord>>();

@@ -33,8 +33,8 @@ namespace Ship.Ses.Extractor.Worker
                 try
                 {
                     using var scope = _scopeFactory.CreateScope();
-                    var extractor = scope.ServiceProvider.GetRequiredService<EncounterResourceExtractor>();
-                    await extractor.ExtractAndPersistAsync(stoppingToken);
+                    //var extractor = scope.ServiceProvider.GetRequiredService<EncounterResourceExtractor>();
+                    //await extractor.ExtractAndPersistAsync(stoppingToken);
                     _logger.LogInformation("✅ Encounter extraction completed");
                 }
                 catch (Exception ex)

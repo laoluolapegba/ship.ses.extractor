@@ -1,11 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
 using Ship.Ses.Extractor.Application.Helpers;
-using Ship.Ses.Extractor.Domain.Models.Extractor;
 using Ship.Ses.Extractor.Domain.Repositories.Transformer;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+using Ship.Ses.Extractor.Domain.Shared;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using System.Threading.Tasks;
