@@ -38,10 +38,10 @@ namespace Ship.Ses.Extractor.Infrastructure.Extensions
         public static IServiceCollection AddInfrastructureServices(this IServiceCollection services, IConfiguration config)
         {
             // MongoDB
-            // ✅ Bind LandingZone settings separately
+            //  Bind LandingZone settings separately
             services.Configure<LandingZoneDbSettings>(config.GetSection("AppSettings:LandingZoneDbSettings"));
 
-            // ✅ Register MongoDB
+            //  Register MongoDB
             services.AddSingleton<IMongoClient>(sp =>
             {
                 var settings = sp.GetRequiredService<IOptions<LandingZoneDbSettings>>().Value;

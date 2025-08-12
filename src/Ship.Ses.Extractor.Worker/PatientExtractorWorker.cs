@@ -11,6 +11,7 @@ namespace Ship.Ses.Extractor.Worker
 {
     using Microsoft.Extensions.Hosting;
     using Microsoft.Extensions.Logging;
+    using Ship.Ses.Extractor.Application.Contracts;
     using System.Threading;
     using System.Threading.Tasks;
 
@@ -33,24 +34,43 @@ namespace Ship.Ses.Extractor.Worker
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
             _logger.LogInformation("Starting Patient Extractor Worker...");
-
             while (!stoppingToken.IsCancellationRequested)
             {
                 try
                 {
                     using var scope = _scopeFactory.CreateScope();
-                    var extractor = scope.ServiceProvider.GetRequiredService<PatientResourceExtractor>();
-                    await extractor.ExtractAndPersistAsync(stoppingToken);
-                    _logger.LogInformation("Patient extraction completed");
+                    var svc = scope.ServiceProvider.GetRequiredService<IFhirStagingIngestService>();
+                    var count = await svc.IngestPatientsAsync(stoppingToken);
+
+                    if (count == 0)
+                        await Task.Delay(TimeSpan.FromSeconds(10), stoppingToken);
+                    else
+                        _logger.LogInformation("Inserted {Count} Patient records to Mongo.", count);
                 }
+                catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested) { }
                 catch (Exception ex)
                 {
-                    _logger.LogError(ex, "❌ Unhandled exception in PatientExtractorWorker");
-
-                    // Optional: delay restart or retry loop
+                    _logger.LogError(ex, "Unhandled exception in PatientExtractorWorker");
                     await Task.Delay(TimeSpan.FromSeconds(60), stoppingToken);
                 }
             }
+            //while (!stoppingToken.IsCancellationRequested)
+            //{
+            //    try
+            //    {
+            //        using var scope = _scopeFactory.CreateScope();
+            //        var extractor = scope.ServiceProvider.GetRequiredService<PatientResourceExtractor>();
+            //        await extractor.ExtractAndPersistAsync(stoppingToken);
+            //        _logger.LogInformation("Patient extraction completed");
+            //    }
+            //    catch (Exception ex)
+            //    {
+            //        _logger.LogError(ex, "❌ Unhandled exception in PatientExtractorWorker");
+
+            //        // Optional: delay restart or retry loop
+            //        await Task.Delay(TimeSpan.FromSeconds(60), stoppingToken);
+            //    }
+            //}
         }
         public override async Task StopAsync(CancellationToken cancellationToken)
         {

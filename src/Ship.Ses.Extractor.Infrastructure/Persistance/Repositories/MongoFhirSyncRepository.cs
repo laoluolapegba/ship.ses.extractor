@@ -22,7 +22,7 @@ namespace Ship.Ses.Extractor.Infrastructure.Persistance.Repositories
 
         public async Task InsertAsync(TRecord record, CancellationToken cancellationToken = default)
         {
-            await _collection.InsertOneAsync(record, cancellationToken: cancellationToken);
+            await _collection.InsertOneAsync(record, cancellationToken: cancellationToken); 
         }
     }
 

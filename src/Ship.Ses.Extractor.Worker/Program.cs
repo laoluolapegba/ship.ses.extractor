@@ -1,14 +1,17 @@
 ﻿using Hl7.Fhir.Model.CdsHooks;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
+using Ship.Ses.Extractor.Application.Contracts;
 using Ship.Ses.Extractor.Application.Services.Transformers;
 using Ship.Ses.Extractor.Domain.Repositories.Extractor;
 using Ship.Ses.Extractor.Domain.Repositories.Transformer;
 using Ship.Ses.Extractor.Domain.Shared;
 using Ship.Ses.Extractor.Infrastructure.Persistance.Contexts;
+using Ship.Ses.Extractor.Infrastructure.Services;
 using Ship.Ses.Extractor.Infrastructure.Settings;
 using Ship.Ses.Extractor.Worker;
 using Ship.Ses.Extractor.Worker.Extensions;
+using static Ship.Ses.Extractor.Infrastructure.Services.FhirStagingIngestService;
 
 
 Log.Logger = new LoggerConfiguration()
@@ -29,7 +32,9 @@ try
     builder.Services.Configure<AppSettings>(builder.Configuration.GetSection(nameof(AppSettings)));
     var envDefaults = builder.Configuration.GetSection("EnvironmentDefaults").Get<EnvironmentDefaults>();
     builder.Services.AddSingleton(envDefaults);
-   
+
+    builder.Services.Configure<FhirStagingOptions>(builder.Configuration.GetSection("FhirStaging"));
+
 
     // Register DbContext
     builder.Services.AddDbContext<ExtractorDbContext>(options =>
@@ -39,7 +44,7 @@ try
 
     // Register Infra + Application services via extension method
     builder.Services.AddExtractorDependencies(builder.Configuration);
-
+    builder.Services.AddScoped<IFhirStagingIngestService, FhirStagingIngestService>();
     // Hosted Service (Runner)
     builder.Services.AddHostedService<PatientExtractorWorker>();
     //builder.Services.AddHostedService<EncounterExtractorWorker>();

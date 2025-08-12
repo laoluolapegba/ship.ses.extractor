@@ -37,6 +37,5 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Filters\MassTransit\" />
-    <Folder Include="Services\" />
   </ItemGroup>
 </Project>

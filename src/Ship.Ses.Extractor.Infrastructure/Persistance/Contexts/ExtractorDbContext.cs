@@ -19,6 +19,7 @@ namespace Ship.Ses.Extractor.Infrastructure.Persistance.Contexts
         public DbSet<FhirResourceType> FhirResourceTypes { get; set; }
         public DbSet<ColumnMapping> ColumnMappings { get; set; }
         public DbSet<EmrConnection> EmrConnections { get; set; }
+        public DbSet<FhirStagingRecord> FhirStaging => Set<FhirStagingRecord>();
         public ExtractorDbContext(DbContextOptions<ExtractorDbContext> options)
             : base(options)
         {
@@ -26,25 +27,21 @@ namespace Ship.Ses.Extractor.Infrastructure.Persistance.Contexts
         public DbSet<SyncTracking> SyncTracking { get; set; }
         //protected override void OnModelCreating(ModelBuilder modelBuilder)
         //{
-        //    modelBuilder.Entity<DataSource>().ToTable("data_sources"); // adjust table name
+        //    modelBuilder.Entity<DataSource>().ToTable("data_sources"); 
         //    base.OnModelCreating(modelBuilder);
         //}
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
+            modelBuilder.Entity<FhirStagingRecord>()
+            .HasIndex(x => x.ShipProcessedAt);
+            modelBuilder.Entity<FhirStagingRecord>()
+                .HasIndex(x => x.ResourceType);
+            modelBuilder.Entity<FhirStagingRecord>()
+                .HasIndex(x => new { x.ResourceType, x.ResourceId });
 
-            //modelBuilder.Entity<ColumnMapping>().HasNoKey(); // ColumnMapping is a value object, no need for a key
-            //modelBuilder.Entity<MappingDefinition>()
-            //    .HasMany(m => m.ColumnMappings)
-            //    .WithOne()
-            //    .HasForeignKey("MappingDefinitionId");
-            //modelBuilder.Entity<MappingDefinition>()
-            //    .Property(e => e.ColumnMappings)
-            //    .HasConversion(
-            //        v => JsonSerializer.Serialize(v, (JsonSerializerOptions)null),
-            //        v => JsonSerializer.Deserialize<List<ColumnMapping>>(v, (JsonSerializerOptions)null));
 
-           
+
             modelBuilder.Entity<MappingDefinition>(entity =>
             {
                 entity.HasKey(e => e.Id);
