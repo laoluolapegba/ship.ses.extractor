@@ -59,6 +59,9 @@ namespace Ship.Ses.Extractor.Domain.Entities.Extractor
         public string FacilityId { get; set; }
         // Derived classes must override collection name
         public abstract string CollectionName { get; }
+        [BsonElement("stagingId")]
+        [BsonRepresentation(BsonType.Int64)]
+        public long? StagingId { get; set; }
 
     }
 }

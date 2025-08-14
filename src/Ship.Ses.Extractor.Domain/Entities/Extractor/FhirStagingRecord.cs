@@ -41,7 +41,7 @@ namespace Ship.Ses.Extractor.Domain.Entities.Extractor
         public DateTime? UpdatedAt { get; set; }
 
         [Column("status"), MaxLength(32)]
-        public string Status { get; set; }
+        public string Status { get; set; }  // PENDING → IN_PROGRESS → EXPORTED → SUBMITTED → ACKED / FAILED
     }
 
 }
