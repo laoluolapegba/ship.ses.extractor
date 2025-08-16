@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Google.Protobuf.WellKnownTypes;
+using Microsoft.EntityFrameworkCore;
 using Ship.Ses.Extractor.Domain.Entities.DataMapping;
 using Ship.Ses.Extractor.Domain.Entities.Extractor;
 using Ship.Ses.Extractor.Domain.Models.Extractor;
@@ -14,6 +15,7 @@ namespace Ship.Ses.Extractor.Infrastructure.Persistance.Contexts
 {
     public class ExtractorDbContext : DbContext
     {
+        //private readonly string? _schema;
         public DbSet<DataSource> DataSources { get; set; }
         public DbSet<MappingDefinition> Mappings { get; set; }
         public DbSet<FhirResourceType> FhirResourceTypes { get; set; }

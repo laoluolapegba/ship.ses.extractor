@@ -4,6 +4,7 @@
     {
         public required OriginDbSettings OriginDb { get; init; }
         public required string OriginDbType { get; init; }
+        public required string Schema { get; set; }
         public LandingZoneDbSettings LandingZoneDbSettings { get; set; }
         public TableMappingSettings TableMappings { get; set; }
 

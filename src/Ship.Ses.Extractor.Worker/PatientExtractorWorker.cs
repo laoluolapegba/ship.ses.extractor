@@ -34,6 +34,7 @@ namespace Ship.Ses.Extractor.Worker
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
             _logger.LogInformation("Starting Patient Extractor Worker...");
+
             while (!stoppingToken.IsCancellationRequested)
             {
                 try
