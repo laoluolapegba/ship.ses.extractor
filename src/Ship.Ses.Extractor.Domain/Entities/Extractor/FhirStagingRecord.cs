@@ -29,7 +29,10 @@ namespace Ship.Ses.Extractor.Domain.Entities.Extractor
         public string FhirBundle { get; set; }
 
         [Column("ship_id"), MaxLength(255)]
-        public string ShipId { get; set; }
+        public string? ShipId { get; set; }
+
+        [Column("ship_submit_txid")]
+        public string? ShipSubmitTxId { get; set; }
 
         [Column("ship_processed_at")]
         public DateTime? ShipProcessedAt { get; set; }
