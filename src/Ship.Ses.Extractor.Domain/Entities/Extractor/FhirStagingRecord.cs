@@ -45,6 +45,9 @@ namespace Ship.Ses.Extractor.Domain.Entities.Extractor
 
         [Column("status"), MaxLength(32)]
         public string Status { get; set; }  // PENDING → IN_PROGRESS → EXPORTED → SUBMITTED → ACKED / FAILED
+
+        [Column("callback_url")]
+        public string? CallbackUrl { get; set; }
     }
 
 }

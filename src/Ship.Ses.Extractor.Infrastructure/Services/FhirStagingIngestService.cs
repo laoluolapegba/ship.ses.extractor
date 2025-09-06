@@ -152,6 +152,8 @@ public sealed class FhirStagingIngestService : IFhirStagingIngestService
                         SyncedResourceId = null,
                         FacilityId = _facilityId,
                         StagingId = row.Id,
+                        ClientEMRCallbackUrl = row.CallbackUrl
+
                     };
 
                     await _mongo.InsertAsync(record, ct);

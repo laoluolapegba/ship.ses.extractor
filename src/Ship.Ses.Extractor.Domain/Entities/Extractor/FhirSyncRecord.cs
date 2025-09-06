@@ -62,6 +62,8 @@ namespace Ship.Ses.Extractor.Domain.Entities.Extractor
         [BsonElement("stagingId")]
         [BsonRepresentation(BsonType.Int64)]
         public long? StagingId { get; set; }
+        [BsonElement("clientEMRCallbackUrl")]
+        public string? ClientEMRCallbackUrl { get; set; }
 
     }
 }
