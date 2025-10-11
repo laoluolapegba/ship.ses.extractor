@@ -1,4 +1,5 @@
-﻿using System;
+﻿using MongoDB.Bson.Serialization.Attributes;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -48,6 +49,13 @@ namespace Ship.Ses.Extractor.Domain.Entities.Extractor
 
         [Column("callback_url")]
         public string? CallbackUrl { get; set; }
+        [Column("ship_service")]
+        public required string ShipService { get; set; }
+        [Column("correlationId")]
+        public required string CorrelationId { get; set; }
+        [Column("clientId")]
+        public required string ClientId { get; set; } = default!;
+
     }
 
 }

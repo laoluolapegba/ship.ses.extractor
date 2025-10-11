@@ -57,6 +57,8 @@ namespace Ship.Ses.Extractor.Domain.Entities.Extractor
 
         [BsonElement("facilityId")]
         public string FacilityId { get; set; }
+        [BsonElement("shipService")]
+        public string ShipService { get; set; } = default!;
         // Derived classes must override collection name
         public abstract string CollectionName { get; }
         [BsonElement("stagingId")]
@@ -64,6 +66,11 @@ namespace Ship.Ses.Extractor.Domain.Entities.Extractor
         public long? StagingId { get; set; }
         [BsonElement("clientEMRCallbackUrl")]
         public string? ClientEMRCallbackUrl { get; set; }
-
+        [BsonElement("correlationId")]
+        public string CorrelationId { get; set; }
+        [BsonElement("clientId")]
+        public string ClientId { get; set; } = default!;
+        [BsonElement("payloadHash")]
+        public string PayloadHash { get; set; } = default!;  // SHA-256 of canonical JSON
     }
 }

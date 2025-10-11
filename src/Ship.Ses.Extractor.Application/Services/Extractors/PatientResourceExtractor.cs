@@ -23,6 +23,14 @@ using Fhir.Metrics;
 
 namespace Ship.Ses.Extractor.Application.Services.Extractors
 {
+    /// <summary>
+    /// This class is responsible for extracting Patient resources from a data source,
+    /// the transformation of that data into FHIR-compliant JSON,
+    /// the validation of that JSON,
+    /// it then persists valid records to a MongoDB repository,
+    /// it also tracks the extraction status in a separate tracking repository.
+    /// it includes detailed logging for monitoring and troubleshooting.
+    /// </summary>
     public class PatientResourceExtractor
     {
         private readonly ITableMappingService _mappingService;
